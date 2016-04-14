@@ -13,6 +13,7 @@
   	<finalName>lucene_demo</finalName>
   	<classpath>src/main/webapp/WEB-INF/classes</classpath>
   	<libOutputDirectory>src/main/webapp/WEB-INF/lib</libOutputDirectory>
+  	<org.apache.lucene.version>5.4.0</org.apache.lucene.version>
   	<org.springframework.version>4.1.6.RELEASE</org.springframework.version>
   	<org.slf4j.version>1.7.9</org.slf4j.version>
   	<org.codehaus.jackson.version>1.9.13</org.codehaus.jackson.version>
@@ -40,9 +41,36 @@
 	</dependency>
 	
 	<!-- lucene 依赖 -->
-  	
+  	<dependency>
+	  	<groupId>org.apache.lucene</groupId>
+	  	<artifactId>lucene-core</artifactId>
+	  	<version>${org.apache.lucene.version}</version>
+	</dependency>
+	<!-- 查询解析器 -->
+	<dependency>
+	  	<groupId>org.apache.lucene</groupId>
+	  	<artifactId>lucene-queryparser</artifactId>
+	  	<version>${org.apache.lucene.version}</version>
+	</dependency>
+	<!-- 通用（标准）解析器解析器 -->
+	<dependency>
+	  	<groupId>org.apache.lucene</groupId>
+	  	<artifactId>lucene-analyzers-common</artifactId>
+	  	<version>${org.apache.lucene.version}</version>
+	</dependency>
+	<!-- 通用（中文）解析器 -->
+	<dependency>
+	<groupId>org.apache.lucene</groupId>
+	  	<artifactId>lucene-analyzers-smartcn</artifactId>
+	  	<version>${org.apache.lucene.version}</version>
+	</dependency>
+	<!-- 搜索的key在搜索结果中高亮显示依赖配置 -->
+	<dependency>
+	  	<groupId>org.apache.lucene</groupId>
+	  	<artifactId>lucene-highlighter</artifactId>
+	  	<version>${org.apache.lucene.version}</version>
+	</dependency>
 	
-	  	
 	<!-- xml 依赖 -->
 	<dependency>
 	  	<groupId>dom4j</groupId>
