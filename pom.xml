@@ -13,7 +13,7 @@
   	<finalName>lucene_demo</finalName>
   	<classpath>src/main/webapp/WEB-INF/classes</classpath>
   	<libOutputDirectory>src/main/webapp/WEB-INF/lib</libOutputDirectory>
-  	<org.apache.lucene.version>5.4.0</org.apache.lucene.version>
+  	<org.apache.lucene.version>5.4.1</org.apache.lucene.version>
   	<org.springframework.version>4.1.6.RELEASE</org.springframework.version>
   	<org.slf4j.version>1.7.9</org.slf4j.version>
   	<org.codehaus.jackson.version>1.9.13</org.codehaus.jackson.version>
@@ -41,6 +41,7 @@
 	</dependency>
 	
 	<!-- lucene 依赖 -->
+	<!-- 核心包 -->
   	<dependency>
 	  	<groupId>org.apache.lucene</groupId>
 	  	<artifactId>lucene-core</artifactId>
@@ -52,10 +53,15 @@
 	  	<artifactId>lucene-queryparser</artifactId>
 	  	<version>${org.apache.lucene.version}</version>
 	</dependency>
-	<!-- 通用（标准）解析器解析器 -->
+	<!-- 通用（标准）解析器 -->
 	<dependency>
 	  	<groupId>org.apache.lucene</groupId>
 	  	<artifactId>lucene-analyzers-common</artifactId>
+	  	<version>${org.apache.lucene.version}</version>
+	</dependency>
+	<dependency>
+	  	<groupId>org.apache.lucene</groupId>
+	  	<artifactId>lucene-queries</artifactId>
 	  	<version>${org.apache.lucene.version}</version>
 	</dependency>
 	<!-- 通用（中文）解析器 -->
