@@ -1,0 +1,222 @@
+8.2 Query 语句优化基本思路和原则  
+一、MySQL查询优化的基本思路、原则
+（一）、Query语句优化的基本思路：
+    1、优化更需要优化的Query
+    2、定位优化对象的性能瓶颈
+    3、明确优化的目标
+    4、从Explain入手
+
+诊断性能问题，明确优化目标（即存在性能问题的地方）
+
+从Explain 入手： 
+我们的优化到底该从何处入手呢 ?
+答案只有一个，从Explain 开始入手 ！为什么？因为只有Explain 才能告诉你，这个Query 在数据库中是
+以一个什么样的执行计划来实现的。
+但是，有一点我们必须清楚，Explain 只是用来获取一个Query 在当前状态的数据库中的执行计
+划，在优化动手之前，我们必须要根据优化目标在自己头脑中有一个清晰的目标执行计划。只有这样，
+优化的目标才有意义。一个优秀的SQL 调优人员（或者成为SQL Performance Tuner），在优化任何一
+个SQL 语句之前，都应该在自己头脑中已经先有一个预定的执行计划，然后通过不断的调整尝试，再借
+助Explain 来验证调整的结果是否满足自己预定的执行计划。对于不符合预期的执行计划需要不断分析
+Query 的写法和数据库对象的信息，继续调整尝试，直至得到预期的结果。  
+
+（二）、Query语句优化的基本原则：
+    5、多使用Profile
+    6、永远用小结果集驱动打的结果集
+    7、尽可能在索引中完成排序
+    8、只取子集需要的Columns
+    9、仅仅使用最有效的过滤条件
+    10、尽可能避免复杂的join和子查询
+
+
+只取子集需要的Columns：
+任何时候在Query 中都只取出自己需要的Columns，尤其是在需要排序的Query 中。为什么？  
+    对于任何Query，返回的数据都是需要通过网络数据包传回给客户端，如果取出的Column 越多，
+需要传输的数据量自然会越大，不论是从网络带宽方面考虑还是从网络传输的缓冲区来看，都是一个浪
+费。 
+    如果是需要排序的Query 来说，影响就更大了。在MySQL 中存在两种排序算法，一种是在
+MySQL4.1 之前的老算法，实现方式是先将需要排序的字段和可以直接定位到相关行数据的指针信息取
+出，然后在我们所设定的排序区（通过参数sort_buffer_size 设定）中进行排序，完成排序之后再次
+通过行指针信息取出所需要的Columns，也就是说这种算法需要访问两次数据。第二种排序算法是从
+MySQL4.1 版本开始使用的改进算法，一次性将所需要的Columns 全部取出，在排序区中进行排序后直
+接将数据返回给请求客户端。改行算法只需要访问一次数据，减少了大量的随机IO，极大的提高了带有
+排序的Query 语句的效率。但是，这种改进后的排序算法需要一次性取出并缓存的数据比第一种算法
+要多很多，如果我们将并不需要的Columns 也取出来，就会极大的浪费排序过程所需要的内存。在
+MySQL4.1 之后的版本中，我们可以通过设置max_length_for_sort_data 参数大小来控制MySQL 选择
+第一种排序算法还是第二种排序算法。当所取出的Columns 的单条记录总大小
+max_length_for_sort_data 设置的大小的时候，MySQL 就会选择使用第一种排序算法，反之，则会选
+择第二种优化后的算法。为了尽可能提高排序性能，我们自然是更希望使用第二种排序算法，所以在
+Query 中仅仅取出我们所需要的Columns 是非常有必要的。
+ 
+
+尽可能避免复杂的Join 和子查询 ：
+    MySQL 在并发这一块做的并不是太好，当并发量太高的时候，系统整体性能可能会急
+剧下降，尤其是遇到一些较为复杂的Query 的时候更是如此。这主要与MySQL 内部资源的争用锁定控
+制有关，如读写相斥等等。对于Innodb 存储引擎由于实现了行级锁定可能还要稍微好一些，如果使用
+的MyISAM 存储引擎，并发一旦较高的时候，性能下降非常明显。所以，我们的Query 语句所涉及到的
+表越多，所需要锁定的资源就越多。也就是说，越复杂的Join 语句，所需要锁定的资源也就越多，所
+阻塞的其他线程也就越多。相反，如果我们将比较复杂的Query 语句分拆成多个较为简单的Query 语
+句分步执行，每次锁定的资源也就会少很多，所阻塞的其他线程也要少一些。 
+    可能很多读者会有疑问，将复杂Join 语句分拆成多个简单的Query 语句之后，那不是我们的网络
+交互就会更多了吗？网络延时方面的总体消耗也就更大了啊，完成整个查询的时间不是反而更长了吗？
+是的，这种情况是可能存在，但也并不是肯定就会如此。我们可以再分析一下，一个复杂的Join Query
+语句在执行的时候，所需要锁定的资源比较多，可能被别人阻塞的概率也就更大，如果是一个简单的
+Query，由于需要锁定的资源较少，被阻塞的概率也会小很多。所以较为复杂的Join Query 也有可能
+在执行之前被阻塞而浪费更多的时间。而且，我们的数据库所服务的并不是单单这一个Query 请求，还
+有很多很多其他的请求，在高并发的系统中，牺牲单个Query 的短暂响应时间而提高整体处理能力也是
+非常值得的。优化本身就是一门平衡与取舍的艺术，只有懂得取舍，平衡整体，才能让系统更优。
+    对于子查询，可能不需要我多说很多人就明白为什么会不被推荐使用。在MySQL 中，子查询的实现
+目前还比较差，很难得到一个很好的执行计划，很多时候明明有索引可以利用，可Query Optimizer 就
+是不用。从MySQL 官方给出的信息说，这一问题将在MySQL6.0 中得到较好的解决，将会引入
+SemiJoin 的执行计划，可MySQL6.0 离我们投入生产环境使用恐怕还有很遥远的一段时间。所以，在
+Query 优化的过程中，能不用子查询的时候就尽量不要使用子查询。
+
+
+8.3 充分利用 Explain 和 Profi l ing 
+8.3.1 Explain 的使用
+MySQL Query Optimizer 通过我让们执行EXPLAIN 命令来告诉我们他将使用一个什么样的执行计划来优化我们的Query。
+所以，可以说Explain是在优化Query 时最直接有效的验证我们想法的工具  。
+
+MySQL Explain 功能中给我们展示的各种信息的解释：
+◆ ID：Query Optimizer 所选定的执行计划中查询的序列号；
+◆ Select_type：所使用的查询类型，主要有以下这几种查询类型
+◇ DEPENDENT SUBQUERY：子查询中内层的第一个SELECT，依赖于外部查询的结果集；
+◇ DEPENDENT UNION：子查询中的UNION，且为UNION 中从第二个SELECT 开始的后面所有SELECT，同样依赖于外部查询的结果集；
+◇ PRIMARY：子查询中的最外层查询，注意并不是主键查询；
+◇ SIMPLE：除子查询或者UNION 之外的其他查询；
+◇ SUBQUERY：子查询内层查询的第一个SELECT，结果不依赖于外部查询结果集；
+◇ UNCACHEABLE SUBQUERY：结果集无法缓存的子查询；
+◇ UNION：UNION 语句中第二个SELECT 开始的后面所有SELECT，第一个SELECT 为PRIMARY
+◇ UNION RESULT：UNION 中的合并结果；
+◆ Table：显示这一步所访问的数据库中的表的名称；
+◆ Type：告诉我们对表所使用的访问方式，主要包含如下集中类型；
+◇ all：全表扫描
+◇ const：读常量，且最多只会有一条记录匹配，由于是常量，所以实际上只需要读一次；
+◇ eq_ref：最多只会有一条匹配结果，一般是通过主键或者唯一键索引来访问；
+◇ fulltext：
+◇ index：全索引扫描；
+◇ index_merge：查询中同时使用两个（或更多）索引，然后对索引结果进行merge 之后再读取表数据；
+◇ index_subquery：子查询中的返回结果字段组合是一个索引（或索引组合），但不是一个主键或者唯一索引；
+◇ rang：索引范围扫描；
+◇ ref：Join 语句中被驱动表索引引用查询；
+◇ ref_or_null：与ref 的唯一区别就是在使用索引引用查询之外再增加一个空值的查询；
+◇ system：系统表，表中只有一行数据；
+◇ unique_subquery：子查询中的返回结果字段组合是主键或者唯一约束；
+◆ Possible_keys：该查询可以利用的索引. 如果没有任何索引可以使用，就会显示成null，这一项内容对于优化时候索引的调整非常重要；
+◆ Key：MySQL Query Optimizer 从possible_keys 中所选择使用的索引；
+◆ Key_len：被选中使用索引的索引键长度；
+◆ Ref：列出是通过常量（const），还是某个表的某个字段（如果是join）来过滤（通过key）的；
+◆ Rows：MySQL Query Optimizer 通过系统收集到的统计信息估算出来的结果集记录条数；
+◆ Extra：查询中每一步实现的额外细节信息，主要可能会是以下内容：
+◇ Distinct：查找distinct 值，所以当mysql 找到了第一条匹配的结果后，将停止该值的查询而转为后面其他值的查询；
+◇ Full scan on NULL key：子查询中的一种优化方式，主要在遇到无法通过索引访问null值的使用使用；
+◇ Impossible WHERE noticed after reading const tables：MySQL Query Optimizer 通过收集到的统计信息判断出不可能存在结果；
+◇ No tables：Query 语句中使用FROM DUAL 或者不包含任何FROM 子句；
+◇ Not exists：在某些左连接中MySQL Query Optimizer 所通过改变原有Query 的组成而使用的优化方法，可以部分减少数据访问次数；
+◇ Range checked for each record (index map: N)：通过MySQL 官方手册的描述，当
+    MySQL Query Optimizer 没有发现好的可以使用的索引的时候，如果发现如果来自前面的
+    表的列值已知，可能部分索引可以使用。对前面的表的每个行组合，MySQL 检查是否可以使用range 或index_merge 访问方法来索取行。
+◇ Select tables optimized away：当我们使用某些聚合函数来访问存在索引的某个字段的
+    时候，MySQL Query Optimizer 会通过索引而直接一次定位到所需的数据行完成整个查
+    询。当然，前提是在Query 中不能有GROUP BY 操作。如使用MIN()或者MAX（）的时候；
+◇ Using filesort：当我们的Query 中包含ORDER BY 操作，而且无法利用索引完成排序操
+    作的时候，MySQL Query Optimizer 不得不选择相应的排序算法来实现。
+◇ Using index：所需要的数据只需要在Index 即可全部获得而不需要再到表中取数据；
+◇ Using index for group-by：数据访问和Using index 一样，所需数据只需要读取索引即
+    可，而当Query 中使用了GROUP BY 或者DISTINCT 子句的时候，如果分组字段也在索引中，Extra 中的信息就会是Using index for group-by；
+◇ Using temporary：当MySQL 在某些操作中必须使用临时表的时候，在Extra 信息中就会
+    出现Using temporary 。主要常见于GROUP BY 和ORDER BY 等操作中。
+◇ Using where：如果我们不是读取表的所有数据，或者不是仅仅通过索引就可以获取所有需要的数据，则会出现Using where 信息；
+◇ Using where with pushed condition：这是一个仅仅在NDBCluster 存储引擎中才会出现
+    的信息，而且还需要通过打开Condition Pushdown 优化功能才可能会被使用。控制参数为engine_condition_pushdown 。  
+◇ Using join buffer：这个值强调了在获取连接条件时没有使用索引，并且需要连接缓冲区来存储中间结果。
+    如果出现了这个值，那应该注意，根据查询的具体情况可能需要添加索引来改进性能。
+◇ Index merges：当MySQL 决定要在一个给定的表上使用超过一个索引的时候，就会出现以下格式中的一个，详细说明使用的索引以及合并的类型。
+     Using sort_union(...)
+     Using union(...)
+     Using intersect(...)
+
+
+8.3.2 Profiling(性能分析)的使用
+
+    通过Query Profiler 来定位一条Query 的性能瓶颈，这里我们再详细介绍一下Profiling 的用途及使用方法。 
+    要想优化一条Query，我们就需要清楚的知道这条Query 的性能瓶颈到底在哪里，是消耗的CPU
+计算太多，还是需要的的IO 操作太多？要想能够清楚的了解这些信息，在MySQL 5.0 和MySQL 5.1
+正式版中已经可以非常容易做到了，那就是通过Query Profiler 功能。 
+    MySQL 的Query Profiler 是一个使用非常方便的Query 诊断分析工具，通过该工具可以获取一条
+Query 在整个执行过程中多种资源的消耗情况，如CPU，IO，IPC，SWAP 等，以及发生的PAGE FAULTS，
+CONTEXT SWITCHE 等等，同时还能得到该Query 执行过程中MySQL 所调用的各个函数在源文件中的位
+置。
+
+下面我们看看Query Profiler 的具体用法。
+1、开启profiling 参数
+root@localhost : (none) 10:53:11> set profiling=1;
+Query OK, 0 rows affected (0.00 sec)
+通过执行“set profiling”命令，可以开启关闭Query Profiler 功能。
+2、执行Query
+... ...
+root@localhost : test 07:43:18> select status,count(*) from test_profiling group by status;
++----------------+----------+
+| status | count(*) |
++----------------+----------+
+| st_xxx1 | 27 |
+| st_xxx2 | 6666 |
+| st_xxx3 | 292887 |
+| st_xxx4 | 15 |
++----------------+----------+
+5 rows in set (1.11 sec)
+... ...
+在开启Query Profiler 功能之后，MySQL 就会自动记录所有执行的Query 的profile 信息了。
+3、获取系统中保存的所有Query 的profile 概要信息
+root@localhost : test 07:47:35> show profiles;
++----------+------------+------------------------------------------------------------+
+| Query_ID | Duration | Query |
++----------+------------+------------------------------------------------------------+
+| 1 | 0.00183100 | show databases |
+| 2 | 0.00007000 | SELECT DATABASE() |
+| 3 | 0.00099300 | desc test |
+| 4 | 0.00048800 | show tables |
+| 5 | 0.00430400 | desc test_profiling |
+| 6 | 1.90115800 | select status,count(*) from test_profiling group by status |
++----------+------------+------------------------------------------------------------+
+3 rows in set (0.00 sec)
+通过执行“SHOW PROFILE” 命令获取当前系统中保存的多个Query 的profile 的概要信息。
+4、针对单个Query 获取详细的profile 信息。
+在获取到概要信息之后，我们就可以根据概要信息中的Query_ID 来获取某个Query 在执行过程中
+详细的profile 信息了，具体操作如下：
+root@localhost : test 07:49:24> show profile cpu, block io for query 6;
++----------------------+----------+----------+------------+--------------+---------------+
+| Status | Duration | CPU_user | CPU_system | Block_ops_in | Block_ops_out |
++----------------------+----------+----------+------------+--------------+---------------+
+| starting | 0.000349 | 0.000000 | 0.000000 | 0 | 0 |
+| Opening tables | 0.000012 | 0.000000 | 0.000000 | 0 | 0 |
+| System lock | 0.000004 | 0.000000 | 0.000000 | 0 | 0 |
+| Table lock | 0.000006 | 0.000000 | 0.000000 | 0 | 0 |
+| init | 0.000023 | 0.000000 | 0.000000 | 0 | 0 |
+| optimizing | 0.000002 | 0.000000 | 0.000000 | 0 | 0 |
+| statistics | 0.000007 | 0.000000 | 0.000000 | 0 | 0 |
+| preparing | 0.000007 | 0.000000 | 0.000000 | 0 | 0 |
+| Creating tmp table | 0.000035 | 0.000999 | 0.000000 | 0 | 0 |
+| executing | 0.000002 | 0.000000 | 0.000000 | 0 | 0 |
+| Copying to tmp table | 1.900619 | 1.030844 | 0.197970 | 347 | 347 |
+| Sorting result | 0.000027 | 0.000000 | 0.000000 | 0 | 0 |
+| Sending data | 0.000017 | 0.000000 | 0.000000 | 0 | 0 |
+| end | 0.000002 | 0.000000 | 0.000000 | 0 | 0 |
+| removing tmp table | 0.000007 | 0.000000 | 0.000000 | 0 | 0 |
+| end | 0.000002 | 0.000000 | 0.000000 | 0 | 0 |
+| query end | 0.000003 | 0.000000 | 0.000000 | 0 | 0 |
+| freeing items | 0.000029 | 0.000000 | 0.000000 | 0 | 0 |
+| logging slow query | 0.000001 | 0.000000 | 0.000000 | 0 | 0 |
+| logging slow query | 0.000002 | 0.000000 | 0.000000 | 0 | 0 |
+| cleaning up | 0.000002 | 0.000000 | 0.000000 | 0 | 0 |
++----------------------+----------+----------+------------+--------------+---------------+
+上面的例子中是获取CPU 和Block IO 的消耗，非常清晰，对于定位性能瓶颈非常适用。希望得到
+取其他的信息，都可以通过执行“SHOW PROFILE *** FOR QUERY n” 来获取，各位读者朋友可以自行测试熟悉。  
+
+8.4 合理设计并利用索引 
+ 
+
+
+
+
+
+
