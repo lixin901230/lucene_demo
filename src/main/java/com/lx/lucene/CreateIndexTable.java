@@ -14,6 +14,7 @@ import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
+import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
 /**
@@ -27,9 +28,15 @@ public class CreateIndexTable {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-
-		String dataDir = "F:/work_company/eclipse_workspace/workspace_wtkj_1/lucene_demo/src/main/webapp/luceneData";
-		String indexDir = "F:/work_company/eclipse_workspace/workspace_wtkj_1/lucene_demo/src/main/webapp/luceneData/luceneIndex";
+		
+		String classesPath = CreateIndexTable.class.getResource("/").getPath();
+		classesPath = classesPath.startsWith("/") ? classesPath.substring(1) : classesPath;
+		String webPath = classesPath.substring(0, classesPath.indexOf("WEB-INF"));
+		
+		String dataDir = webPath + "luceneData";				//用于生产索引的文本内容文件路径
+		String indexDir = webPath + "luceneData/luceneIndex";	//索引存放路径
+		System.out.println("dataDir==="+ dataDir + "\nindexDir=="+ indexDir);
+		
 		createLuceneIndex(dataDir, indexDir);
 	}
 	
@@ -43,16 +50,16 @@ public class CreateIndexTable {
 		
 		IndexWriter writer = null;
 		try {
-			// 1、创建一个标准分词器，所谓分词器，就是在全内容中选择出关键字（不适用于中文，所以我们选择建议一个中文的分词器）
+			// 1、读取内容，打开索引文件目录
+			Directory dir = FSDirectory.open(Paths.get(indexDir));
+
+			// 2、创建一个标准分词器，所谓分词器，就是在全内容中选择出关键字（不适用于中文，所以我们选择建议一个中文的分词器）
 			//StandardAnalyzer analyzer = new StandardAnalyzer();
 			SmartChineseAnalyzer analyzer = new SmartChineseAnalyzer();
 			
-			// 2、创建索引分析器配置实例
+			// 3、创建索引分析器配置实例
 			IndexWriterConfig config = new IndexWriterConfig(analyzer);
 			config.setOpenMode(OpenMode.CREATE_OR_APPEND);	//索引的打开方式，没有就新建，有就打开追加
-			
-			// 3、读取内容，打开索引文件目录
-			FSDirectory dir = FSDirectory.open(Paths.get(indexDir));
 			
 			// 4、索引表生成对象，可以看成是一个有规则的输出流对象
 			writer = new IndexWriter(dir,config);
@@ -79,14 +86,13 @@ public class CreateIndexTable {
 					System.out.println("加载的文件 ："+file.getCanonicalPath()+"/"+file.getName());
 				}
 			}
-			//写完索引表，关闭写对象实例。
-			writer.close();
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
-		}finally {
+		} finally {
 			if(writer != null && writer.isOpen()) {
 				try {
+					// 8、写完索引表，关闭写对象实例。
 					writer.close();
 				} catch (IOException e) {
 					e.printStackTrace();
