@@ -67,6 +67,7 @@ public class LuceneSearch {
 			
 			// 7、开始搜索工作，根据以上设置的搜索规则，搜索出前30条数据
 			TopDocs results = searcher.search(query, 30);
+			System.out.println("符合条件的文档总数："+results.totalHits);
 			
 			// 8、显示搜索结果
 			ScoreDoc[] docs = results.scoreDocs;
