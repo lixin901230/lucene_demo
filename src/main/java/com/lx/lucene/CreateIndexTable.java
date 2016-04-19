@@ -39,7 +39,7 @@ public class CreateIndexTable {
 		String indexDir = webPath + "luceneData/luceneIndex";	//索引存放路径
 		System.out.println("dataDir==="+ dataDir + "\nindexDir=="+ indexDir);
 		
-		createLuceneIndex(dataDir, indexDir, true);
+		createLuceneIndex(dataDir, indexDir, false);
 	}
 	
 	/**
