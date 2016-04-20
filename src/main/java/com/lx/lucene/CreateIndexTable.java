@@ -9,7 +9,9 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
@@ -76,10 +78,11 @@ public class CreateIndexTable {
 			// 5、读入等待创建索引的内容（因为是多个文件所以用listFiles，如果是只有一个文件 也不会错，注意：不能是文件夹）
 			Document document = null;
 			File[] files = new File(dataDir).listFiles();
-			for (File file : files) {
+			for (int i=0; i<files.length; i++) {
 				
+				File file = files[i];
 				if(file.isFile()) {	//排除文件夹
-				
+					
 					// 6、循环创建等待分词的文档，并在后面将索引文档通过IndexWriter写入索引文件中，生成索引文件
 					document = new Document();
 					//可以理解为给索引表添加一个content字段，读内容为从file文件内容里提取的关键字，不保存文档内容进表
@@ -88,6 +91,12 @@ public class CreateIndexTable {
 					document.add(new StringField("fileName", file.getName(),Field.Store.YES));
 					//为索引表增加fullPath字段，内容为文件全路径，保存文件路径到索引表
 					document.add(new StringField("fullPath", file.getCanonicalPath(),Field.Store.YES));
+					
+					//创建duble和int类型的field并添加到索引文档中（还可以添加其他的数字类型Field）
+					document.add(new DoubleField("doubleContent", 26.5 + i, Field.Store.YES));
+					document.add(new IntField("intContent", 30 + i, Field.Store.YES));
+					
+					document.add(new TextField("descContent", "这是我的第一个lucene多短语查询 学习案例"+i, Field.Store.YES));
 					
 					// 7、把定义好规则的文档写入索引表
 					writer.addDocument(document);
