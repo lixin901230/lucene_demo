@@ -1,16 +1,20 @@
 package com.lx.lucene;
 
 import java.io.StringReader;
+import java.text.Collator;
+import java.text.RuleBasedCollator;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.cjk.CJKAnalyzer;
+import org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.analysis.core.StopAnalyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.collation.CollationKeyAnalyzer;
 import org.wltea.analyzer.lucene.IKAnalyzer;
 
 /**
@@ -25,12 +29,16 @@ public class LuceneAnalyzer {
 		
 		Analyzer analyzer = null;
 		
+		Collator collator = Collator.getInstance(java.util.Locale.CHINA);
+		analyzer = new CollationKeyAnalyzer(collator);
+		print(analyzer);
+		
 		// 1、标准分词器
 		analyzer = new StandardAnalyzer();
 		print(analyzer);
 		
-		// 2、IK分词器
-		analyzer = new IKAnalyzer();
+		// 2、中文分词器
+		analyzer = new SmartChineseAnalyzer();
 		print(analyzer);
 		
 		// 3、空格分词器
@@ -52,6 +60,10 @@ public class LuceneAnalyzer {
 		// 7、被忽略词分词器
 		analyzer = new StopAnalyzer();
 		print(analyzer);
+		
+		// 8、IK分词器（第三方）
+		analyzer = new IKAnalyzer();
+		print(analyzer);
 	}
 	
 	/**
@@ -68,7 +80,7 @@ public class LuceneAnalyzer {
 			while(tokenStream.incrementToken()) {
 				System.out.print(termAttr.toString()+" | ");
 			}
-			System.out.println();
+			System.out.println("\n");
 			
 		} catch (Exception e) {
 			e.printStackTrace();

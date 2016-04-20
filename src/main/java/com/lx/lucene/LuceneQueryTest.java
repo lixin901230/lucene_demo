@@ -37,8 +37,8 @@ import org.junit.Test;
 	• BooleanQuery 
 	• WildcardQuery 
 	• PhraseQuery 
-	• PrefixQuery 
 	• MultiPhraseQuery 
+	• PrefixQuery 
 	• FuzzyQuery 
 	• RegexpQuery 
 	• TermRangeQuery 
@@ -110,7 +110,7 @@ public class LuceneQueryTest {
 		Term term = new Term("content", searchKey);
 		Query query = new TermQuery(term);
 		
-		TopDocs topDocs = searcher.search(query, 1000);
+		TopDocs topDocs = searcher.search(query, 1000);	//查询和query相匹配的前1000个文档
 		System.out.println("共检索出 " + topDocs.totalHits + " 条记录");
 		
 		ScoreDoc[] scoreDocs = topDocs.scoreDocs;
@@ -181,9 +181,9 @@ public class LuceneQueryTest {
      * WildcardQuery query=new WildcardQuery(term);<br/>
      * TopDocs topDocs = searcher.search(query, 1000);<br/><br/>
      * 
-     * 其中的通配符分两种，即*和？<br/>
-     * * 表示任意多的字符<br/>
-     * ？表示任意一个字符
+     * 其中的通配符分两种，即 * 和 ? <br/>
+     * * 表示匹配多个任意字符<br/>
+     * ? 表示匹配一个任意字符
 	 * @throws Exception
 	 */
 	@Test
@@ -231,37 +231,11 @@ public class LuceneQueryTest {
 		PhraseQuery.Builder builder = new PhraseQuery.Builder();
 		builder.add(new Term("content", "优化"));
 		builder.add(new Term("content", "思路"));
-		builder.setSlop(2);		//设置两个搜索关键字之间允许间隔的最大值
+		
+//		builder.add(new Term("descContent", "lucene"));
+//		builder.add(new Term("descContent", "学习"));
+		builder.setSlop(10);		//设置两个搜索关键字之间允许间隔的最大值
 		PhraseQuery query = builder.build();
-		
-		TopDocs topDocs = searcher.search(query, 1000);
-		System.out.println("共检索出 " + topDocs.totalHits + " 条记录");
-		
-		ScoreDoc[] scoreDocs = topDocs.scoreDocs;
-		for (ScoreDoc scoreDoc : scoreDocs) {
-			Document doc = searcher.doc(scoreDoc.doc);
-			float score = scoreDoc.score; //相似度
-			System.out.println("相似度："+score+"\n搜索到的文件："+doc.get("fullPath")+"/"+doc.get("fileName"));
-		}
-	}
-	
-	/**
-	 * 前缀搜索(搜索起始位置符合要求的结果)<br/><br/>
-	 * 
-	 * 主要对象是PrefixQuery，调用方式如下：<br/>
-     * Term term=new Term(字段名, 搜索关键字);<br/>
-     * PrefixQuery query=new PrefixQuery(term);<br/>
-     * TopDocs topDocs = searcher.search(query, 1000);<br/>
-     * 
-	 * @throws Exception
-	 */
-	@Test
-	public void prefixQuery() throws Exception {
-		
-		IndexSearcher searcher = getIndexSearcher();
-		
-		Term prefixTerm = new Term("content", "优化");
-		PrefixQuery query = new PrefixQuery(prefixTerm);
 		
 		TopDocs topDocs = searcher.search(query, 1000);
 		System.out.println("共检索出 " + topDocs.totalHits + " 条记录");
@@ -297,11 +271,44 @@ public class LuceneQueryTest {
 		
 		IndexSearcher searcher = getIndexSearcher();
 		MultiPhraseQuery query = new MultiPhraseQuery();
-		Term term = new Term("content", "lucene");
+//		Term term = new Term("content", "mysql");
 		Term term1 = new Term("content", "优化");
 		Term term2 = new Term("content", "思路");
-		query.add(term);
+//		Term term3 = new Term("descContent", "lucene");
+//		Term term4 = new Term("descContent", "学习");
+		
+//		query.add(term);
 		query.add(new Term[]{term1, term2} );
+//		query.add(new Term[]{term3, term4} );
+		
+		TopDocs topDocs = searcher.search(query, 1000);
+		System.out.println("共检索出 " + topDocs.totalHits + " 条记录");
+		
+		ScoreDoc[] scoreDocs = topDocs.scoreDocs;
+		for (ScoreDoc scoreDoc : scoreDocs) {
+			Document doc = searcher.doc(scoreDoc.doc);
+			float score = scoreDoc.score; //相似度
+			System.out.println("相似度："+score+"\n搜索到的文件："+doc.get("fullPath")+"/"+doc.get("fileName"));
+		}
+	}
+	
+	/**
+	 * 前缀搜索(搜索起始位置符合要求的结果)<br/><br/>
+	 * 
+	 * 主要对象是PrefixQuery，调用方式如下：<br/>
+     * Term term=new Term(字段名, 搜索关键字);<br/>
+     * PrefixQuery query=new PrefixQuery(term);<br/>
+     * TopDocs topDocs = searcher.search(query, 1000);<br/>
+     * 
+	 * @throws Exception
+	 */
+	@Test
+	public void prefixQuery() throws Exception {
+		
+		IndexSearcher searcher = getIndexSearcher();
+		
+		Term prefixTerm = new Term("content", "优化");
+		PrefixQuery query = new PrefixQuery(prefixTerm);
 		
 		TopDocs topDocs = searcher.search(query, 1000);
 		System.out.println("共检索出 " + topDocs.totalHits + " 条记录");
@@ -375,7 +382,15 @@ public class LuceneQueryTest {
 	}
 	
 	/**
-	 * 词条范围搜索
+	 * 词条范围搜索(允许搜索指定范围内的关键字结果)<br/><br/>
+	 * 
+	 * 主要对象是TermRangeQuery，调用方式如下：<br/>
+     * TermRangeQuery query=new TermRangeQuery(字段名, 起始值, 终止值, 起始值是否包含边界, 终止值是否包含边界); <br/><br/>
+     * TopDocs topDocs = searcher.search(query, 1000);<br/>
+     * TermRangeQuery构造函数最后两个参数是Boolean类型的，表示是否包含边界 。<br/>
+     * true 包含边界<br/>
+     * false 不包含边界<br/>
+	 * 
 	 * @throws Exception
 	 */
 	@Test
@@ -383,7 +398,14 @@ public class LuceneQueryTest {
 		
 		IndexSearcher searcher = getIndexSearcher();
 		
-		TermRangeQuery query = new TermRangeQuery("content", new BytesRef("优".getBytes()), new BytesRef("思".getBytes()), true, true);
+		// 不能搜索到的term
+		BytesRef lowerTerm2 = new BytesRef("游".getBytes());
+		BytesRef upperTerm2 = new BytesRef("泳".getBytes());
+		
+		// 能搜索到的term
+		BytesRef lowerTerm = new BytesRef("优".getBytes());
+		BytesRef upperTerm = new BytesRef("思".getBytes());
+		TermRangeQuery query = new TermRangeQuery("content", lowerTerm, upperTerm, true, true);
 		
 		TopDocs topDocs = searcher.search(query, 1000);
 		System.out.println("共检索出 " + topDocs.totalHits + " 条记录");
@@ -397,7 +419,15 @@ public class LuceneQueryTest {
 	}
 	
 	/**
-	 * 数值范围搜索
+	 * 数值范围搜索(允许搜索指定范围内的数字结果)
+	 * 
+	 * 主要对象是TermRangeQuery，调用方式如下：<br/>
+     * TermRangeQuery query=new TermRangeQuery(字段名, 起始值, 终止值, 起始值是否包含边界, 终止值是否包含边界); <br/><br/>
+     * TopDocs topDocs = searcher.search(query, 1000);<br/>
+     * TermRangeQuery构造函数最后两个参数是Boolean类型的，表示是否包含边界 。<br/>
+     * true 包含边界<br/>
+     * false 不包含边界<br/>
+	 * 
 	 * @throws Exception
 	 */
 	@Test
@@ -405,7 +435,8 @@ public class LuceneQueryTest {
 		
 		IndexSearcher searcher = getIndexSearcher();
 		
-		NumericRangeQuery<Double> query = NumericRangeQuery.newDoubleRange("content", 0.1, 99.9, true, true);
+		NumericRangeQuery<Double> query = NumericRangeQuery.newDoubleRange("doubleContent", 26.5, 27.5, true, false);//从doubleContent中查找[26.5~27.5)之间的数组
+		//NumericRangeQuery<Integer> query = NumericRangeQuery.newIntRange("doubleContent", 30, 31, true, true);//从intContent中查找[30~31]之间的数组
 		
 		TopDocs topDocs = searcher.search(query, 1000);
 		System.out.println("共检索出 " + topDocs.totalHits + " 条记录");
