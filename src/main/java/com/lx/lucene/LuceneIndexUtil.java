@@ -140,4 +140,5 @@ public class LuceneIndexUtil {
 		IndexWriter writer = createIndexWriter();
 		writer.commit();
 	}
+	
 }
