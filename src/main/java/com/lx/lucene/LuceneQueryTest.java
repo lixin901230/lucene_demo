@@ -82,7 +82,7 @@ public class LuceneQueryTest {
 	 * @return
 	 * @throws IOException 
 	 */
-	public static IndexSearcher getIndexSearcher() throws IOException {
+	public static IndexSearcher createIndexSearcher() throws IOException {
 		
 		String indexDir = getIndexDirPath();
 		Directory directory = FSDirectory.open(Paths.get(indexDir));
@@ -104,7 +104,7 @@ public class LuceneQueryTest {
 	@Test
 	public void termQuery() throws Exception {
 		
-		IndexSearcher searcher = getIndexSearcher();
+		IndexSearcher searcher = createIndexSearcher();
 		
 		String searchKey = "优化";
 		Term term = new Term("content", searchKey);
@@ -149,7 +149,7 @@ public class LuceneQueryTest {
 	@Test
 	public void booleanQuery() throws Exception {
 		
-		IndexSearcher searcher = getIndexSearcher();
+		IndexSearcher searcher = createIndexSearcher();
 		
 		//组合条件：
 		TermQuery termQuery01 = new TermQuery(new Term("content", "mysql"));
@@ -189,7 +189,7 @@ public class LuceneQueryTest {
 	@Test
 	public void wildcardQuery() throws Exception {
 		
-		IndexSearcher searcher = getIndexSearcher();
+		IndexSearcher searcher = createIndexSearcher();
 		
 		Term term = new Term("content", "优?");
 		//Term term = new Term("content", "李?");
@@ -226,7 +226,7 @@ public class LuceneQueryTest {
 	@Test
 	public void phraseQuery() throws Exception {
 		
-		IndexSearcher searcher = getIndexSearcher();
+		IndexSearcher searcher = createIndexSearcher();
 		
 		PhraseQuery.Builder builder = new PhraseQuery.Builder();
 		builder.add(new Term("content", "优化"));
@@ -269,7 +269,7 @@ public class LuceneQueryTest {
 	@Test
 	public void multiPhraseQuery() throws Exception {
 		
-		IndexSearcher searcher = getIndexSearcher();
+		IndexSearcher searcher = createIndexSearcher();
 		MultiPhraseQuery query = new MultiPhraseQuery();
 //		Term term = new Term("content", "mysql");
 		Term term1 = new Term("content", "优化");
@@ -305,7 +305,7 @@ public class LuceneQueryTest {
 	@Test
 	public void prefixQuery() throws Exception {
 		
-		IndexSearcher searcher = getIndexSearcher();
+		IndexSearcher searcher = createIndexSearcher();
 		
 		Term prefixTerm = new Term("content", "优化");
 		PrefixQuery query = new PrefixQuery(prefixTerm);
@@ -336,7 +336,7 @@ public class LuceneQueryTest {
 	@Test
 	public void fuzzyQuery() throws Exception {
 		
-		IndexSearcher searcher = getIndexSearcher();
+		IndexSearcher searcher = createIndexSearcher();
 		
 		FuzzyQuery query = new FuzzyQuery(new Term("content", "思路"), 2);
 		
@@ -365,7 +365,7 @@ public class LuceneQueryTest {
 	@Test
 	public void regexpQuery() throws Exception {
 		
-		IndexSearcher searcher = getIndexSearcher();
+		IndexSearcher searcher = createIndexSearcher();
 		
 		String regex = "优";
 		RegexpQuery query = new RegexpQuery(new Term("content", regex));
@@ -396,7 +396,7 @@ public class LuceneQueryTest {
 	@Test
 	public void termRangeQuery() throws Exception {
 		
-		IndexSearcher searcher = getIndexSearcher();
+		IndexSearcher searcher = createIndexSearcher();
 		
 		// 不能搜索到的term
 		BytesRef lowerTerm2 = new BytesRef("游".getBytes());
@@ -433,7 +433,7 @@ public class LuceneQueryTest {
 	@Test
 	public void numericRangeQuery() throws Exception {
 		
-		IndexSearcher searcher = getIndexSearcher();
+		IndexSearcher searcher = createIndexSearcher();
 		
 		NumericRangeQuery<Double> query = NumericRangeQuery.newDoubleRange("doubleContent", 26.5, 27.5, true, false);//从doubleContent中查找[26.5~27.5)之间的数组
 		//NumericRangeQuery<Integer> query = NumericRangeQuery.newIntRange("doubleContent", 30, 31, true, true);//从intContent中查找[30~31]之间的数组
@@ -452,7 +452,7 @@ public class LuceneQueryTest {
 	@Test
 	public void constantScoreQuery() throws Exception {
 		
-		IndexSearcher searcher = getIndexSearcher();
+		IndexSearcher searcher = createIndexSearcher();
 		
 		
 //		ConstantScoreQuery query = new ConstantScoreQuery(query);
@@ -461,14 +461,14 @@ public class LuceneQueryTest {
 	@Test
 	public void disjunctionMaxQuery() throws Exception {
 		
-		IndexSearcher searcher = getIndexSearcher();
+		IndexSearcher searcher = createIndexSearcher();
 		
 //		DisjunctionMaxQuery query = new DisjunctionMaxQuery(disjuncts, tieBreakerMultiplier);
 	}
 	
 	@Test
 	public void matchAllDocsQuery () throws Exception {
-		IndexSearcher searcher = getIndexSearcher();
+		IndexSearcher searcher = createIndexSearcher();
 		
 		MatchAllDocsQuery query = new MatchAllDocsQuery();
 
