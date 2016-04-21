@@ -12,6 +12,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.IntField;
+import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
@@ -92,11 +93,14 @@ public class CreateIndexTable {
 					//为索引表增加fullPath字段，内容为文件全路径，保存文件路径到索引表
 					document.add(new StringField("fullPath", file.getCanonicalPath(),Field.Store.YES));
 					
-					//创建duble和int类型的field并添加到索引文档中（还可以添加其他的数字类型Field）
-					document.add(new DoubleField("doubleContent", 26.5 + i, Field.Store.YES));
-					document.add(new IntField("intContent", 30 + i, Field.Store.YES));
-					
-					document.add(new TextField("descContent", "这是我的第一个lucene多短语查询 学习案例"+i, Field.Store.YES));
+					// 用于测试，只在第一个文件所在的文档中添加下面这些域
+					if(i == 0) {
+						//创建long、duble和int类型的field并添加到索引文档中（还可以添加其他的数字类型Field）
+						document.add(new LongField("longContent", 100, Field.Store.YES));
+						document.add(new DoubleField("doubleContent", 26.5 + i, Field.Store.YES));
+						document.add(new IntField("intContent", 30 + i, Field.Store.YES));
+						document.add(new TextField("descContent", "这是我的第一个lucene多短语查询 学习案例"+i, Field.Store.YES));
+					}
 					
 					// 7、把定义好规则的文档写入索引表
 					writer.addDocument(document);
