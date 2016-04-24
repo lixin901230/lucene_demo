@@ -8,15 +8,19 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.BinaryDocValuesField;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.LongField;
+import org.apache.lucene.document.NumericDocValuesField;
+import org.apache.lucene.document.SortedNumericDocValuesField;
+import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
@@ -24,12 +28,20 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TrackingIndexWriter;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.FuzzyQuery;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.MultiPhraseQuery;
 import org.apache.lucene.search.NumericRangeQuery;
+import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.util.NumericUtils;
 import org.junit.Test;
 
 /**
@@ -44,20 +56,42 @@ public class LuceneIndexManageTest {
 	 * @return
 	 */
 	public static List<Document> getDocuments() {
+		
+		String text1 = "美国，其首都是华盛顿，是一个科技、军事非常发达的发达大国，但总喜欢充当世界警察的角色";
+		String text2 = "日本，是一个海岛国家，生鱼片是他们的最爱的食物";
+		String text3 = "法国，是一个充满神秘，浪漫色彩的国度";
+		String text4 = "朝鲜，是一个王位世袭制的国家，如今三胖当家，老与美国对着干";
+		String text5 = "中国，是一个有着5000年历史文化的泱泱大国，是个追求和平明主的社会主义国家";
+		
 		List<Document> docs = new ArrayList<Document>();
-		for (int i = 1; i <= 5; i++) {
-			Document document = new Document();
-			document.add(new TextField("addIndex_test_"+i, "我的lucene学习案例，添加索引测试_"+i, Field.Store.YES));
-			
-			// 用于测试，只在第一个文件所在的文档中添加下面这些域
-			if(i == 1) {
-				//创建long、duble和int类型的field并添加到索引文档中（还可以添加其他的数字类型Field）
-				document.add(new LongField("longContent", 100, Field.Store.YES));
-				document.add(new DoubleField("doubleContent", 26.5, Field.Store.YES));
-				document.add(new IntField("intContent", 30, Field.Store.YES));
-			}
-			docs.add(document);
-		}
+		Document doc1 = new Document();
+		doc1.add(new TextField("content", text1, Field.Store.YES));
+		docs.add(doc1);
+		
+		Document doc2 = new Document();
+		doc2.add(new TextField("content", text2, Field.Store.YES));
+		docs.add(doc2);
+		
+		Document doc3 = new Document();
+		doc3.add(new TextField("content", text3, Field.Store.YES));
+		docs.add(doc3);
+		
+		Document doc4 = new Document();
+		doc4.add(new TextField("content", text4, Field.Store.YES));
+		docs.add(doc4);
+		
+		Document doc5 = new Document();
+		doc5.add(new TextField("content", text5, Field.Store.YES));
+		docs.add(doc5);
+		
+		Document doc6 = new Document();
+		doc6.add(new NumericDocValuesField("numberContent", 2016l));	//不会被持久化存储，在索引文件中找不到
+		docs.add(doc6);
+		
+		Document doc7 = new Document();
+		doc7.add(new BinaryDocValuesField("binaryContent", new BytesRef("二进制文档值".getBytes())));	//不会被持久化存储，在索引文件中找不到
+		docs.add(doc7);
+		
 		return docs;
 	}
 	
@@ -72,7 +106,6 @@ public class LuceneIndexManageTest {
 			writer = createIndexWriter();
 			
 			List<Document> docs = getDocuments();
-			
 			
 			// 方式1、使用IndexWriter直接去操作索引
 			// 1）、循环添加多个文档
@@ -111,6 +144,34 @@ public class LuceneIndexManageTest {
 	}
 	
 	/**
+	 * 插入索引（在删除某个索引后，使用该方法重新插入删除的索引，测试是否能重新添加成功）
+	 */
+	@Test
+	public void insertIndex() {
+		
+		IndexWriter writer = null;
+		try {
+			writer = createIndexWriter();
+			
+			writer.addDocument(getDocuments().get(0));	//重新新建美国索引
+			writer.addDocument(getDocuments().get(4));	//重新新建中国索引
+			
+			writer.close();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if(writer != null) {
+				try {
+					writer.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	/**
 	 * 删除索引
 	 */
 	@Test
@@ -121,22 +182,20 @@ public class LuceneIndexManageTest {
 			writer = createIndexWriter();
 			
 			// 创建两个词条对象
-			Term term = new Term("addIndex_test_1", "添加索引测试");
-			Term term2 = new Term("content", "案例");
+			Term term = new Term("content", "中国");
+			Term term2 = new Term("content", "美国");
 			
-			// 数值范围查询
-			NumericRangeQuery<Double> query = NumericRangeQuery.newDoubleRange("doubleContent", 26.5, 27.5, true, false);//从doubleContent中查找[26.5~27.5)之间的数组
 			// 词条查询
-			TermQuery termQuery = new TermQuery(term);
-			
+			TermQuery query = new TermQuery(term);
+			FuzzyQuery query2 = new FuzzyQuery(term2);
 			
 			//方式1：直接使用IndexWriter操作索引
 			// 1)、删除全部索引
-//			writer.deleteAll();
+			writer.deleteAll();
 
 			// 2)、根据查询条件删除索引
-			writer.deleteDocuments(query);
-			writer.deleteDocuments(new Query[]{query, termQuery});
+//			writer.deleteDocuments(query);
+//			writer.deleteDocuments(new Query[]{query, query2});
 			// 3)、根据词条删除索引
 //			writer.deleteDocuments(term);
 //			writer.deleteDocuments(new Term[]{term, term2});
@@ -148,7 +207,7 @@ public class LuceneIndexManageTest {
 //			trackingIndexWriter.deleteAll();
 			// 2)、根据查询条件删除索引
 //			trackingIndexWriter.deleteDocuments(query);
-//			trackingIndexWriter.deleteDocuments(new Query[]{query, termQuery});
+//			trackingIndexWriter.deleteDocuments(new Query[]{query, query2});
 			// 3)、根据词条删除索引
 //			trackingIndexWriter.deleteDocuments(term);
 //			trackingIndexWriter.deleteDocuments(new Term[]{term, term2});
@@ -173,41 +232,50 @@ public class LuceneIndexManageTest {
 	/**
 	 * 修改索引
 	 */
-	public static void updateIndex() {
+	@Test
+	public void updateIndex() {
 		
 		IndexWriter writer = null;
 		try {
 			writer = createIndexWriter();
 			
-			List<Document> docs = getDocuments();
+			// 准备用来修改的文档
+			Document doc1 = new Document();
+			doc1.add(new TextField("content", "美国US，其首都是华盛顿", Field.Store.YES));
+			writer.addDocument(doc1);
+			
+			Document doc2 = new Document();
+			doc2.add(new TextField("content", "美国，有很多州，首都华盛顿", Field.Store.YES));
+			writer.addDocument(doc2);
+
+			List<Document> docs = new ArrayList<Document>();
+			docs.add(doc1);
+			docs.add(doc2);
+			
 			
 			// 创建词条对象（根据该词条查找需要修改的文档）
-			Term term = new Term("addIndex_test_1", "测试1");
-			
+			Term term = new Term("content", "美国");
 			
 			// 方式1：直接使用IndexWriter操作索引
 			// 1）、修改一个文档
-			for (Document document : docs) {
-				writer.updateDocument(term, document);	//更新一个文档首先删除包含指定词条的所有文档,然后添加新文档（Updates a document by first deleting the document(s) containing term and then adding the new document.）
-			}
+			writer.updateDocument(term, doc1);	//更新一个文档首先删除包含指定词条的所有文档,然后添加新文档（Updates a document by first deleting the document(s) containing term and then adding the new document.）
 			// 2）、批量修改文档
-			writer.updateDocuments(term, docs);
-			// 3）、修改文档中的域值
-			TextField textField = new TextField("", new StringReader("示例"));
-			DoubleField doubleField = new DoubleField("", 6.5, Field.Store.YES);
-			writer.updateDocValues(term, new Field[]{textField, doubleField});	//用给定的值更新文档 DocValues域(Updates documents' DocValues fields to the given values.)
-			// 4）、修改数值类型的文档值
-			writer.updateNumericDocValue(term, "longContent", 102);
+//			writer.updateDocuments(term, docs);
+			
+			// 3）、修改BinaryDocValuesField域值
+//			Field textField = new BinaryDocValuesField("binaryContent",  new BytesRef("update二进制文档值".getBytes()));
+//			writer.updateDocValues(term = new Term("numberContent", "二进制文档值"), textField);	//用给定的值更新文档 DocValues域(Updates documents' DocValues fields to the given values.)
+//			writer.updateDocValues(term = new Term("numberContent", "二进制文档值"), new Field[]{textField});	//用给定的值更新文档 DocValues域(Updates documents' DocValues fields to the given values.)
+			// 4）、修改NumericDocValuesField域值
+//			writer.updateNumericDocValue(term = new Term("numberContent", "2016"), "numberContent", 20160424l);
 			
 			
 			// 方式2：使用IndexWriter的委派对象trackingIndexWriter操作索引
-			TrackingIndexWriter trackingIndexWriter = new TrackingIndexWriter(writer);
+//			TrackingIndexWriter trackingIndexWriter = new TrackingIndexWriter(writer);
 			// 1）、修改一个文档
-			for (Document document : docs) {
-				trackingIndexWriter.updateDocument(term, document);	//更新一个文档首先删除包含指定词条的所有文档,然后添加新文档（Updates a document by first deleting the document(s) containing term and then adding the new document.）
-			}
+//			trackingIndexWriter.updateDocument(term, doc1);	//更新一个文档首先删除包含指定词条的所有文档,然后添加新文档（Updates a document by first deleting the document(s) containing term and then adding the new document.）
 			// 2）、批量修改文档
-			trackingIndexWriter.updateDocuments(term, docs);
+//			trackingIndexWriter.updateDocuments(term, docs);
 			
 			
 			// 提交
@@ -226,6 +294,47 @@ public class LuceneIndexManageTest {
 		}
 	}
 	
+	@Test
+	public void search() {
+		
+		try {
+			Term term1 = new Term("content", "中国");
+			Term term2 = new Term("content", "美国");
+			Term term2_1 = new Term("content", "华盛顿");
+			
+			IndexSearcher searcher = createIndexSearcher();
+
+			// 查询1
+			Query query = new TermQuery(term1);
+			TopDocs topDocs = searcher.search(query, 1000);
+			System.out.println("查询到记录条数："+topDocs.totalHits);
+			ScoreDoc[] scoreDocs = topDocs.scoreDocs;
+			for (ScoreDoc scoreDoc : scoreDocs) {
+				Document doc = searcher.doc(scoreDoc.doc);
+				String fieldName = doc.getFields().get(0).name();
+				System.out.println(fieldName+"==搜索到的内容："+doc.get("content"));
+			}
+			
+			System.out.println("\n=================\n");
+			
+			// 查询2（多关键字查询）
+			MultiPhraseQuery query2 = new MultiPhraseQuery();
+			query2.add(term2);
+//			query2.add(term2_1);
+//			query2.setSlop(10);	//setSlop的参数是设置两个关键字term2与term2_1之间允许间隔的最大值
+			
+			TopDocs topDocs2 = searcher.search(query2, 1000);
+			System.out.println("查询到记录条数："+topDocs2.totalHits);
+			ScoreDoc[] scoreDocs2 = topDocs2.scoreDocs;
+			for (ScoreDoc scoreDoc : scoreDocs2) {
+				Document doc = searcher.doc(scoreDoc.doc);
+				String fieldName = doc.getFields().get(0).name();
+				System.out.println(fieldName+"==搜索到的内容："+doc.get("content"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 	/**
 	 * 获取索引文件存放路径（用于测试）
@@ -281,23 +390,15 @@ public class LuceneIndexManageTest {
 	}
 	
 	/**
-	 * 创建索引操配置对象
-	 * @return
-	 */
-	public static IndexWriterConfig createIndexWriterConfig() {
-		Analyzer analyzer = new SmartChineseAnalyzer();
-		IndexWriterConfig indexWriterConfig = new IndexWriterConfig(analyzer);
-		return indexWriterConfig;
-	}
-	
-	/**
 	 * 创建索引文件操作对象
 	 * @return
 	 * @throws IOException
 	 */
 	public static IndexWriter createIndexWriter() throws IOException {
 		Directory directory = createDirectory();
-		IndexWriterConfig writerConfig = createIndexWriterConfig();
+		//Analyzer analyzer = new StandardAnalyzer();
+		Analyzer analyzer = new SmartChineseAnalyzer();
+		IndexWriterConfig writerConfig = new IndexWriterConfig(analyzer);
 		if(!checkExistsIndex()) {
 			writerConfig.setOpenMode(OpenMode.CREATE);	//Create a new index in the directory, removing any previously indexed documents
 		} else {

@@ -3,10 +3,12 @@ package com.lx.lucene;
 import java.io.IOException;
 import java.nio.file.Paths;
 
+import org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.BooleanQuery.Builder;
@@ -107,6 +109,8 @@ public class LuceneQueryTest {
 		IndexSearcher searcher = createIndexSearcher();
 		
 		String searchKey = "优化";
+		//QueryParser parser = new QueryParser("content", new SmartChineseAnalyzer());
+		//Query query = parser.parse(searchKey);
 		Term term = new Term("content", searchKey);
 		Query query = new TermQuery(term);
 		
@@ -280,6 +284,7 @@ public class LuceneQueryTest {
 //		query.add(term);
 		query.add(new Term[]{term1, term2} );
 //		query.add(new Term[]{term3, term4} );
+		query.setSlop(100);	//setSlop的参数是设置两个关键字之间允许间隔的最大值
 		
 		TopDocs topDocs = searcher.search(query, 1000);
 		System.out.println("共检索出 " + topDocs.totalHits + " 条记录");
