@@ -1,4 +1,4 @@
-package com.lx.lucene.util;
+package com.lx.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

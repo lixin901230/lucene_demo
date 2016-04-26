@@ -1,4 +1,4 @@
-package com.lx.lucene.util;
+package com.lx.util;
 
 import java.util.UUID;
 

@@ -45,7 +45,7 @@ import org.apache.lucene.util.NumericUtils;
 import org.junit.Test;
 
 /**
- * lucene 索引增删改 示例
+ * lucene 索引 增 删 改 查 示例
  * 
  * @author lx
  */
@@ -155,8 +155,6 @@ public class LuceneIndexManageTest {
 			
 			writer.addDocument(getDocuments().get(0));	//重新新建美国索引
 			writer.addDocument(getDocuments().get(4));	//重新新建中国索引
-			
-			writer.close();
 			
 		} catch (IOException e) {
 			e.printStackTrace();
