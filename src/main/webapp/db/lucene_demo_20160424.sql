@@ -2,21 +2,21 @@
 Navicat MySQL Data Transfer
 
 Source Server         : localhost
-Source Server Version : 50173
+Source Server Version : 50121
 Source Host           : localhost:3306
 Source Database       : lucene_demo
 
 Target Server Type    : MYSQL
-Target Server Version : 50173
+Target Server Version : 50121
 File Encoding         : 65001
 
-Date: 2016-04-25 00:01:36
+Date: 2016-04-27 16:28:13
 */
 
 SET FOREIGN_KEY_CHECKS=0;
 
 -- ----------------------------
--- Table structure for `country_info`
+-- Table structure for country_info
 -- ----------------------------
 DROP TABLE IF EXISTS `country_info`;
 CREATE TABLE `country_info` (
@@ -48,16 +48,16 @@ INSERT INTO `country_info` VALUES ('f0fafe2d6c2c4016a8ec705ddcce2253', '瑞士',
 INSERT INTO `country_info` VALUES ('fc69a2ec27864896822c4e167b69f956', '日本', '东京', '东京是日本的首都');
 
 -- ----------------------------
--- Table structure for `product_info`
+-- Table structure for product_info
 -- ----------------------------
 DROP TABLE IF EXISTS `product_info`;
 CREATE TABLE `product_info` (
-  `id` int(10) NOT NULL,
+  `id` int(10) NOT NULL AUTO_INCREMENT,
   `name` varchar(200) DEFAULT NULL,
-  `title` text,
+  `content` text,
   `price` double DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='商品信息表';
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='商品信息表';
 
 -- ----------------------------
 -- Records of product_info

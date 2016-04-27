@@ -348,6 +348,7 @@
   <build>
     <finalName>${finalName}</finalName>
     <outputDirectory>${classpath}</outputDirectory>
+    <testOutputDirectory>${classpath}</testOutputDirectory>
     <resources>
     	<resource>
     		<directory>src/main/resources</directory>
@@ -388,7 +389,7 @@
    	<plugins>
    		
    		<!-- mvn clean -->
-   		<!-- <plugin>
+   		<plugin>
 			<artifactId>maven-antrun-plugin</artifactId>
 			<executions>
 				<execution>
@@ -397,7 +398,7 @@
 					<configuration>
 						<tasks>
 							<echo>Clean local lib and classes. </echo>
-							<delete dir="src/main/webapp/WEB-INF/lib" />
+							<!-- <delete dir="src/main/webapp/WEB-INF/lib" /> -->
 						</tasks>
 					</configuration>
 					<goals>
@@ -405,7 +406,7 @@
 					</goals>
 				</execution>
 			</executions>
-		</plugin> -->
+		</plugin>
 		
 		<!-- 测试 -->
 		<plugin>
@@ -414,6 +415,9 @@
 			<version>2.18.1</version>
 			<configuration>
 				<skip>true</skip>
+				<!-- <excludes>com.lx.lucene/*Test.java</excludes>
+				<testFailureIgnore>true</testFailureIgnore>
+				<excludes>**/*Test.java</excludes> -->
 			</configuration>
 		</plugin>
    	
