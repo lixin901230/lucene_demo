@@ -1,4 +1,4 @@
-package com.lx.lucene;
+package com.lx.lucene.filesearch;
 
 import java.io.IOException;
 import java.nio.file.Paths;

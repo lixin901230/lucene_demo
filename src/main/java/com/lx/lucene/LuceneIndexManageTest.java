@@ -365,7 +365,7 @@ public class LuceneIndexManageTest {
 	public static String getIndexDirPath() {
 		
 		try {
-			String classesPath = CreateIndexTable.class.getResource("/").getPath();
+			String classesPath = LuceneIndexManageTest.class.getResource("/").getPath();
 			classesPath = classesPath.startsWith("/") ? classesPath.substring(1) : classesPath;
 			String indexDir = "";
 			if(classesPath.indexOf("WEB-INF") > -1) {
