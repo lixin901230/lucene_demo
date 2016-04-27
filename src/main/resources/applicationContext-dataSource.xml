@@ -14,8 +14,8 @@
 	<!-- 导入资源文件 -->
 	<!-- 加载配置文件：通配符加载多个资源文件，spring 3.1 后默认使用该 @link org.springframework.context.support.PropertySourcesPlaceholderConfigurer}加载资源配置，
 		并且PropertyPlaceholderConfigurer与PropertySourcesPlaceholderConfigurer两种加载形式只能同时使用一种,可以使用通配符*匹配加载多个文件 -->
-	<!-- <context:property-placeholder location="classpath*:src/main/resources/*.properties"/> -->
-	<context:property-placeholder location="classpath*:src/main/resources/init.properties"/>
+	<context:property-placeholder location="classpath*:*.properties"/>
+	<!-- <context:property-placeholder location="classpath*:init.properties"/> -->
 	
 	<!-- 加载配置文件 -->  
     <!-- <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">  

@@ -26,6 +26,11 @@ public class ProductSearchController {
 	@Autowired
 	private IProductSearchService productSearchService;
 	
+	@RequestMapping("/test.do")
+	public String test() {
+		return "/product/productList";
+	}
+	
 	/**
 	 * 全文搜索符合条件的产品信息
 	 * @param model

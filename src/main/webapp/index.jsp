@@ -13,7 +13,6 @@
 			<input type="button" id="searchBtn" value="搜  索"/>
 		</div>
 	</div>
-	
 	<script type="text/javascript" src="${pageContext.request.contextPath}/resource/jquery/jquery-1.9.1.min.js"></script>
 	<script type="text/javascript">
 		
@@ -28,6 +27,11 @@
 		function search() {
 			
 			var searchKey = $("#searchKey").val();
+			debugger
+			if(searchKey == null || $.trim(searchKey) == "") {
+				return false;
+			}
+			
 			$.ajax({
 				url: '${pageContext.request.contextPath}/productSearch/searchProducts.do',
 				type: 'post',
