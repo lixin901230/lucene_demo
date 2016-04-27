@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.BinaryDocValuesField;
@@ -23,6 +24,7 @@ import org.apache.lucene.document.SortedNumericDocValuesField;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
@@ -38,11 +40,20 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.highlight.Fragmenter;
+import org.apache.lucene.search.highlight.Highlighter;
+import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
+import org.apache.lucene.search.highlight.QueryScorer;
+import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
+import org.apache.lucene.search.highlight.SimpleSpanFragmenter;
+import org.apache.lucene.search.highlight.TokenSources;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.NumericUtils;
 import org.junit.Test;
+
+import com.mysql.jdbc.jdbc2.optional.SuspendableXAConnection;
 
 /**
  * lucene 索引 增 删 改 查 示例
@@ -60,7 +71,7 @@ public class LuceneIndexManageTest {
 		String text1 = "美国，其首都是华盛顿，是一个科技、军事非常发达的发达大国，但总喜欢充当世界警察的角色";
 		String text2 = "日本，是一个海岛国家，生鱼片是他们的最爱的食物";
 		String text3 = "法国，是一个充满神秘，浪漫色彩的国度";
-		String text4 = "朝鲜，是一个王位世袭制的国家，如今三胖当家，老与美国对着干";
+		String text4 = "朝鲜，与中国接壤，是一个王位世袭制的国家，如今三胖当家，老与美国对着干";
 		String text5 = "中国，是一个有着5000年历史文化的泱泱大国，是个追求和平明主的社会主义国家";
 		
 		List<Document> docs = new ArrayList<Document>();
@@ -99,7 +110,7 @@ public class LuceneIndexManageTest {
 	 * 添加索引
 	 */
 	@Test
-	public void addIndex() {
+	public void createIndex() {
 		
 		IndexWriter writer = null;
 		try {
@@ -301,7 +312,7 @@ public class LuceneIndexManageTest {
 			Term term2_1 = new Term("content", "华盛顿");
 			
 			IndexSearcher searcher = createIndexSearcher();
-
+			
 			// 查询1
 			Query query = new TermQuery(term1);
 			TopDocs topDocs = searcher.search(query, 1000);
@@ -311,6 +322,12 @@ public class LuceneIndexManageTest {
 				Document doc = searcher.doc(scoreDoc.doc);
 				String fieldName = doc.getFields().get(0).name();
 				System.out.println(fieldName+"==搜索到的内容："+doc.get("content"));
+				
+				// 搜索结果中搜索关键字高亮显示处理
+				String content = doc.get("content");
+				Analyzer analyzer = new SmartChineseAnalyzer();
+				String highlighterResult = highlightFormat("content", content, query, analyzer);
+				System.out.println("结果高亮显示处理："+highlighterResult+"\n");
 			}
 			
 			System.out.println("\n=================\n");
@@ -318,8 +335,8 @@ public class LuceneIndexManageTest {
 			// 查询2（多关键字查询）
 			MultiPhraseQuery query2 = new MultiPhraseQuery();
 			query2.add(term2);
-//			query2.add(term2_1);
-//			query2.setSlop(10);	//setSlop的参数是设置两个关键字term2与term2_1之间允许间隔的最大值
+			query2.add(term2_1);
+			query2.setSlop(10);	//setSlop的参数是设置两个关键字term2与term2_1之间允许间隔的最大值
 			
 			TopDocs topDocs2 = searcher.search(query2, 1000);
 			System.out.println("查询到记录条数："+topDocs2.totalHits);
@@ -328,6 +345,13 @@ public class LuceneIndexManageTest {
 				Document doc = searcher.doc(scoreDoc.doc);
 				String fieldName = doc.getFields().get(0).name();
 				System.out.println(fieldName+"==搜索到的内容："+doc.get("content"));
+				
+				
+				// 搜索结果中搜索关键字高亮显示处理
+				String content = doc.get("content");
+				Analyzer analyzer = new SmartChineseAnalyzer();
+				String highlighterResult = highlightFormat("content", content, query2, analyzer);
+				System.out.println("结果高亮显示处理："+highlighterResult+"\n");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -423,6 +447,28 @@ public class LuceneIndexManageTest {
 			}
 		}
 		return isExists;
+	}
+	
+
+	/**
+	 * 高亮处理<br/>
+	 * 搜索结果中的搜索关键字进行高亮显示处理
+	 * @param field		取值时的属性名称
+	 * @param content	根据field取出的值内容
+	 * @param query		搜索时使用的查询对象
+	 * @param analyzer	分词器
+	 * @return
+	 * @throws Exception
+	 */
+	public static String highlightFormat(String field, String content, Query query, Analyzer analyzer) throws Exception {
+		QueryScorer queryScorer = new QueryScorer(query, field);
+		Fragmenter fragmenter = new SimpleSpanFragmenter(queryScorer);
+		SimpleHTMLFormatter simpleHTMLFormatter = new SimpleHTMLFormatter("<span color='red'>", "</span>");
+		Highlighter highlighter = new Highlighter(simpleHTMLFormatter, queryScorer);
+		highlighter.setTextFragmenter(fragmenter);
+		TokenStream tokenStream = analyzer.tokenStream(field, new StringReader(content));
+		String highlighterResult = highlighter.getBestFragment(tokenStream, content);
+		return highlighterResult;
 	}
 	
 }
