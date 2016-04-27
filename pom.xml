@@ -414,6 +414,9 @@
 			<version>2.18.1</version>
 			<configuration>
 				<skip>true</skip>
+				<!-- <excludes>com.lx.lucene/*Test.java</excludes>
+				<testFailureIgnore>true</testFailureIgnore> -->
+			<excludes>**/*Test.java</excludes>
 			</configuration>
 		</plugin>
    	
