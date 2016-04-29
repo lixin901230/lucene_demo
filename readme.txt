@@ -19,3 +19,9 @@ lucene 索引查看工具luke下载地址：
 	com.lx.complete				演示lucene在实际项目中结合数据库混合使用的完整示例（根据数据库创建索引，且数据库的增删改记录时同时维护更新lucene索引，搜索时使用lucene的索引进行检索）
 	com.lx.util					工具类
 	
+
+Lucene 基本操作：
+	1、创建Directory，获取索引目录
+　　	2、创建词法分析器Analyzer，创建IndexWriter对象
+　　	3、创建Document对象，创建Field对象并设置属性和值，存储数据
+　　	4、关闭IndexWriter，提交

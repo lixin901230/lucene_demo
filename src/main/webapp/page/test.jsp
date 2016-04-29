@@ -3,9 +3,10 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Insert title here</title>
+<title>springmvc跳转测试页面</title>
 </head>
 <body>
+	springmvc跳转测试页面<br/>
 	${pageContext.request.contextPath}<br/>
 	测试：${testInfo}
 </body>

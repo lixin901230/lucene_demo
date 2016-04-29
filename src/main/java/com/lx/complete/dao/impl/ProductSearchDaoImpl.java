@@ -6,8 +6,11 @@ import java.util.Map;
 
 import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.CallableStatementCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -35,6 +38,31 @@ public class ProductSearchDaoImpl implements IProductSearchDao {
 		int flag = namedParameterJdbcTemplate.update(sql, paramSource);
 		if(flag > -1) {
 			success = true;
+		}
+		return success;
+	}
+	
+	@Override
+	public boolean updateProductInfoById(ProductInfo productInfo) throws Exception {
+		
+		boolean success = false;
+		SqlParameterSource paramSource = new BeanPropertySqlParameterSource(productInfo);
+		String sql = "UPDATE product_info SET name=:name, content=:content, price=:price WHERE id=:id";
+		int flag = namedParameterJdbcTemplate.update(sql, paramSource);
+		if(flag > -1) {
+			success = true;
+		}
+		return success;
+	}
+	
+	public boolean deleteProductInfoById(String productId) {
+		boolean success = false;
+		try {
+			String sql = "DELETE FROM product_info WHERE id='"+productId+"'";
+			jdbcTemplate.execute(sql);
+			success = true;
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return success;
 	}
