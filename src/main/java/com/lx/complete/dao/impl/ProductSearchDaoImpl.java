@@ -6,8 +6,11 @@ import java.util.Map;
 
 import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.CallableStatementCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -40,8 +43,33 @@ public class ProductSearchDaoImpl implements IProductSearchDao {
 	}
 	
 	@Override
-	public List<ProductInfo> queryProductInfos(Map<String, Object> params) throws Exception {
-		 
+	public boolean updateProductInfoById(ProductInfo productInfo) throws Exception {
+		
+		boolean success = false;
+		SqlParameterSource paramSource = new BeanPropertySqlParameterSource(productInfo);
+		String sql = "UPDATE product_info SET name=:name, content=:content, price=:price WHERE id=:id";
+		int flag = namedParameterJdbcTemplate.update(sql, paramSource);
+		if(flag > -1) {
+			success = true;
+		}
+		return success;
+	}
+	
+	public boolean deleteProductInfoById(String productId) {
+		boolean success = false;
+		try {
+			String sql = "DELETE FROM product_info WHERE id='"+productId+"'";
+			jdbcTemplate.execute(sql);
+			success = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return success;
+	}
+	
+	@Override
+	public List<ProductInfo> queryProductInfosByDB(Map<String, Object> params) throws Exception {
+		
 		Object id = params.get("id");
 		Object name = params.get("name");
 		Object content = params.get("content");
@@ -50,7 +78,7 @@ public class ProductSearchDaoImpl implements IProductSearchDao {
 		List<Object> paramList = new ArrayList<Object>();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("SELECT * FROM product_info d WHERE and 1=1");
+		sql.append("SELECT * FROM product_info d WHERE 1=1");
 		if(id != null) {
 			sql.append(" and d.id=? ");
 			paramList.add(id);

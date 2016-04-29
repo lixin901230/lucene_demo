@@ -19,6 +19,22 @@ public interface IProductSearchDao {
 	 * @author lixin
 	 */
 	public boolean addProductInfo(ProductInfo productInfo) throws Exception;
+	
+	
+	/**
+	 * 修改一条产品信息
+	 * @param productInfo
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean updateProductInfoById(ProductInfo productInfo) throws Exception;
+	/**
+	 * 删除一条产品信息
+	 * @param productId
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean deleteProductInfoById(String productId);
 
 	
 	/**
@@ -27,5 +43,5 @@ public interface IProductSearchDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<ProductInfo> queryProductInfos(Map<String, Object> params) throws Exception;
+	public List<ProductInfo> queryProductInfosByDB(Map<String, Object> params) throws Exception;
 }

@@ -8,6 +8,7 @@ import org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
@@ -42,7 +43,7 @@ public class LuceneSearch {
 	 */
 	public static void search(String indexDir, String key) {
 		
-		DirectoryReader reader = null;
+		IndexReader reader = null;
 		try {
 			
 			// 1、创建索引表存储对象（索引存储在磁盘中）

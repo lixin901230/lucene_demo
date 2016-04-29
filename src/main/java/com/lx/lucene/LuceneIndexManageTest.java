@@ -406,7 +406,7 @@ public class LuceneIndexManageTest {
 	public static IndexSearcher createIndexSearcher() throws IOException {
 		
 		Directory directory = createDirectory();
-		DirectoryReader reader = DirectoryReader.open(directory);
+		IndexReader reader = DirectoryReader.open(directory);
 		IndexSearcher searcher = new IndexSearcher(reader);
 		return searcher;
 	}
