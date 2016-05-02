@@ -34,7 +34,7 @@ public class ProductSearchServiceImpl implements IProductSearchService {
 		boolean success = productSearchDao.deleteProductInfoById(productId);
 		return success;
 	}
-	
+
 	@Override
 	public List<ProductInfo> queryProductInfosByDB(Map<String, Object> params) throws Exception {
 		List<ProductInfo> list = productSearchDao.queryProductInfosByDB(params);

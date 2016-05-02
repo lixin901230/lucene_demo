@@ -22,7 +22,6 @@ import com.lx.util.CommonUtils;
 import com.lx.util.HandleResultUtils;
 import com.lx.util.JsonUtils;
 
-
 /**
  * 产品信息搜Controller
  * 
