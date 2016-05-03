@@ -35,7 +35,14 @@ public interface IProductSearchDao {
 	 * @throws Exception
 	 */
 	public boolean deleteProductInfoById(String productId);
-
+	
+	/**
+	 * 通过ID查询产品信息（通过数据库查询）
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 */
+	public ProductInfo queryProductInfoByIdForDB(String id) throws Exception;
 	
 	/**
 	 * 查询查询信息（可用于定时维护lucene索引，如：每天凌晨查询数据库数据数据，更新lucene索引）

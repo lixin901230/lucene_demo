@@ -280,8 +280,8 @@ public class LuceneManager {
 				String _fieldValue = doc.get(_fieldName);
 				
 				resultEntryMap.put(_fieldName, _fieldValue);
-				resultEntrys.add(resultEntryMap);
 			}
+			resultEntrys.add(resultEntryMap);
 		}
 		return resultEntrys;
 	}
@@ -309,10 +309,14 @@ public class LuceneManager {
 				String _fieldValue = doc.get(_fieldName);
 				
 				String highlighterResult = highlightFormat(_fieldName, _fieldValue, query, analyzer);
+				if(highlighterResult != null) {
+					resultEntryMap.put(_fieldName, highlighterResult);
+				} else {
+					resultEntryMap.put(_fieldName, _fieldValue);
+				}
 				
-				resultEntryMap.put(_fieldName, highlighterResult);
-				resultEntrys.add(resultEntryMap);
 			}
+			resultEntrys.add(resultEntryMap);
 		}
 		return resultEntrys;
 	}
@@ -330,7 +334,7 @@ public class LuceneManager {
 	public static String highlightFormat(String field, String content, Query query, Analyzer analyzer) throws Exception {
 		QueryScorer queryScorer = new QueryScorer(query, field);
 		Fragmenter fragmenter = new SimpleSpanFragmenter(queryScorer);
-		SimpleHTMLFormatter simpleHTMLFormatter = new SimpleHTMLFormatter("<span color='red'>", "</span>");
+		SimpleHTMLFormatter simpleHTMLFormatter = new SimpleHTMLFormatter("<span style=\"color:red;\">", "</span>");
 		Highlighter highlighter = new Highlighter(simpleHTMLFormatter, queryScorer);
 		highlighter.setTextFragmenter(fragmenter);
 		TokenStream tokenStream = analyzer.tokenStream(field, new StringReader(content));

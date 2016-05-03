@@ -31,6 +31,14 @@ public interface IProductSearchService {
 	public boolean deleteProductInfoById(String productId);
 	
 	/**
+	 * 通过ID查询产品信息（通过数据库查询）
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 */
+	public ProductInfo queryProductInfoByIdForDB(String id) throws Exception;
+	
+	/**
 	 * 查询产品信息（通过数据库查询）
 	 * @param params
 	 * @return

@@ -55,6 +55,7 @@ public class ProductSearchDaoImpl implements IProductSearchDao {
 		return success;
 	}
 	
+	@Override
 	public boolean deleteProductInfoById(String productId) {
 		boolean success = false;
 		try {
@@ -65,6 +66,14 @@ public class ProductSearchDaoImpl implements IProductSearchDao {
 			e.printStackTrace();
 		}
 		return success;
+	}
+	
+	@Override
+	public ProductInfo queryProductInfoByIdForDB(String id) throws Exception {
+		String sql = "select id, name, content, price from product_info p where p.id=?";
+		RowMapper<ProductInfo> rowMapper = new BeanPropertyRowMapper<ProductInfo>(ProductInfo.class);
+		ProductInfo product = jdbcTemplate.queryForObject(sql.toString(), rowMapper, id);
+		return product;
 	}
 	
 	@Override
