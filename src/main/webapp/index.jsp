@@ -10,9 +10,19 @@
 		<div>对数据库中的数据创建lucene索引库</div>
 		<div>
 			<input type="button" id="createLuceneIndex" value="重新创建索引" title="对数据库数据创建lucene索引"/>
-			<span id="errorMsg" style="color: red; font-size: 12px; display: none;"> * 查询数据库创建lucene索引库失败，原因：<span id="errorInfo"></span></span>
+			<span id="msgInfo" style="font-size: 12px; display: none;"></span>
 		</div>
+		
 		<div style="margin: 25px 25px;"></div>
+	
+		<div>在数据库中添加一条产品信息数据并将该数据添加到lucene索引库中</div>
+		<div>
+			<input type="button" id="addProduct" value="添加产品信息" title="在数据库中添加一条产品信息数据并将该数据添加到lucene索引库中"/>
+			<span id="msgInfo" style="font-size: 12px; display: none;"></span>
+		</div>
+		
+		<div style="margin: 25px 25px;"></div>
+		
 		<div>全文搜索产品信息</div>
 		<div>
 			<input type="text" id="searchKey" value=""/>
@@ -53,7 +63,7 @@
 				url: '${pageContext.request.contextPath}/productSearch/searchProducts.do',
 				type: 'post',
 				data: {
-					"product.content": searchKey
+					"content": searchKey
 				},
 				dataType: 'html',
 				cache: false,
@@ -82,9 +92,9 @@
 				success: function(data) {
 					if(data) {
 						if(data.success) {
-							$("#errorMsg").hide();
+							$("#msgInfo").css({"color": "green"}).show().text(" * "+data.msg);
 						} else {
-							$("#errorMsg").show().find("#errorInfo").text(data.msg);
+							$("#msgInfo").css({"color": "red"}).show().text(" * 查询数据库创建lucene索引库失败，原因："+data.msg);
 						}
 					}
 				},

@@ -45,22 +45,30 @@ public class ProductSearchController extends BaseController {
 	@RequestMapping("/searchProducts.do")
 	public String searchProducts(ProductInfo product, Model model) {
 		
-		Map<String, Object> result = new HashMap<String, Object>();
+		List<ProductInfo> products = new ArrayList<ProductInfo>();
 		List<Map<String, Object>> productInfos = new ArrayList<Map<String, Object>>();
 		try {
+			if(product != null) {
+				String searchField = "content";
+				String searchKey = product != null ? product.getContent() : "";
+				
+				// 搜索时，去lucene中搜索，没有则再从数据库中搜索（lucene中没搜到，就不用） 
+				productInfos = new LuceneManager().search(searchField, searchKey, true);
+				//productInfos = productSearchService.searchProducts(searchField, searchKey);
+			}
 			
-			String searchField = "content";
-			String searchKey = "橘子";
+			// （此步可省略，直接返回List<Map<String, Object>>集合到前端取值显示）将List<Map<String, Object>>转换为List<ProductInfo>
+			/*for (Map<String, Object> map : productInfos) {
+				ProductInfo productTemp = (ProductInfo) CommonUtils.convertMapToBean(ProductInfo.class, map);
+				//ProductInfo productTemp = (ProductInfo) CommonUtils.mapToBean(map, ProductInfo.class);
+				products.add(productTemp);
+			}*/
 			
-			// 搜索时，去lucene中搜索，没有则再从数据库中搜索（lucene中没搜到，就不用） 
-			productInfos = new LuceneManager().search(searchField, searchKey, true);
-			//productInfos = productSearchService.searchProducts(searchField, searchKey);
-			
-			result.put("success", true);
 		} catch (Exception e) {
 			logger.error(this.getClass().getName()+">>>searchProducts 执行异常，原因："+e);
 			e.printStackTrace();
 		}
+		//model.addAttribute("products", products);
 		model.addAttribute("products", productInfos);
 		return "/page/product/productList";
 	}
@@ -84,9 +92,9 @@ public class ProductSearchController extends BaseController {
 				data.add(map);
 			}
 			new LuceneManager().addIndexBatch(data);
-			resultMap = HandleResultUtils.getResultMap(true, "成功");
+			resultMap = HandleResultUtils.getResultMap(true, "lucene索引库创建成功");
 		} catch (Exception e) {
-			resultMap = HandleResultUtils.getResultMap(false, "失败，原因："+e);
+			resultMap = HandleResultUtils.getResultMap(false, "lucene索引库创建失败，原因："+e);
 			e.printStackTrace();
 		}
 		
