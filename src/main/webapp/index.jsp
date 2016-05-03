@@ -31,7 +31,6 @@
 			<div id="updateProductContainer">
 				
 			</div>
-		</div>
 		
 		<div style="margin: 25px 25px;"></div>
 		
