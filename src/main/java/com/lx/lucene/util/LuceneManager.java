@@ -69,6 +69,9 @@ public class LuceneManager {
 	 * 	注意：现在是将所有的数据库都存到一个索引文件中，若数据库数据量较大，可能造成索引文件较大，
 	 * 		因此后期可以一个业务模块的相关表建一个单独的索引文件 或 对每个表建一个单独的索引文件 存放到不同的索引目录中，
 	 * 		搜索时同时建立多个搜索任务从多个索引目录下的索引文件中搜索，有助于搜索性能优化
+	 * 
+	 * @param dbRows	需要创建索引的数据集合（从数据库中查出来的数据记录的map集合，每个map相当于一个实体对象）
+	 * @param noAnalyzerFields	不需要进行分词的属性名称（如ID属性不需要进行分词，否则修改、删除时无法根据ID查找需要修改或删除的索引文档）
 	 */
 	public void addIndexBatch(List<Map<String, Object>> dbRows, String...noAnalyzerFields) {
 		
@@ -91,7 +94,8 @@ public class LuceneManager {
 	/**
 	 * 对单条记录数据创建索引<br/>
 	 * <b>注意：该map中的元素只能是简单类型</b>
-	 * @param dbRowMap
+	 * @param dbRowMap	需要创建索引的数据（该map相当于数据库中查出来的一条记录或一个数据bean）
+	 * @param noAnalyzerFields	不需要进行分词的属性名称（如ID属性不需要进行分词，否则修改、删除时无法根据ID查找需要修改或删除的索引文档）
 	 */
 	public void addIndex(Map<String, Object> dbRowMap, String...noAnalyzerFields) {
 		
@@ -114,7 +118,8 @@ public class LuceneManager {
 	/**
 	 * 对单条记录数据创建索引<br/>
 	 * 依赖{@link CommonUtils#beanToMap(Object)}
-	 * @param object
+	 * @param object	需要创建索引的数据对象
+	 * @param noAnalyzerFields	不需要进行分词的属性名称（如ID属性不需要进行分词，否则修改、删除时无法根据ID查找需要修改或删除的索引文档）
 	 */
 	public void addIndex(Object object, String...noAnalyzerFields) {
 		
@@ -127,6 +132,7 @@ public class LuceneManager {
 	 * @param fieldName		需要修改的索引文档的词条属性名称，通常修改时根据记录的 id 去修改
 	 * @param fieldValue	需要修改的索引文档的词条属性名称
 	 * @param newData		需要更新的新数据map；<b>注意：该map中的元素只能是简单类型</b>
+	 * @param noAnalyzerFields	不需要进行分词的属性名称（修改时，根据ID到索引库中查找需要修改的索引文档）
 	 */
 	public void updateIndex(String fieldName, String fieldValue, Map<String, Object> newData, String...noAnalyzerFields) {
 		
@@ -154,6 +160,7 @@ public class LuceneManager {
 	 * @param fieldName		需要修改的索引文档的词条属性名称，通常修改时根据记录的 id 去修改
 	 * @param fieldValue	需要修改的索引文档的词条属性名称
 	 * @param newObject		需要更新的新对象
+	 * @param noAnalyzerFields	不需要进行分词的属性名称（删除时，根据ID到索引库中查找需要删除的索引文档去删除）
 	 */
 	public void updateIndex(String fieldName, String fieldValue, Object newObject, String...noAnalyzerFields) {
 		
@@ -347,7 +354,7 @@ public class LuceneManager {
 	/**
 	 * 根据数据库记录集合创建索引文档对象
 	 * @param dbRow	一个
-	 * @param noAnalyzerFields 不分词的属性
+	 * @param noAnalyzerFields 不需要进行分词的属性名称
 	 * @return
 	 */
 	public Document getDocument(Map<String, Object> dbRow, String...noAnalyzerFields) {
@@ -360,6 +367,7 @@ public class LuceneManager {
 	/**
 	 * 根据数据库记录集合创建索引文档对象
 	 * @param dbRows	一个含Map类型元素的List集合，每个Map对应数据库一条记录，map中的买个元素对应数据库中的一个字段（或对象的一个属性）
+	 * @param noAnalyzerFields	不需要进行分词的属性名称
 	 * @return
 	 */
 	public List<Document> getDocuments(List<Map<String, Object>> dbRows, String...noAnalyzerFields) {
@@ -385,6 +393,13 @@ public class LuceneManager {
 		return docs;
 	}
 	
+	/**
+	 * 创建域
+	 * @param key	域名称
+	 * @param value	域值
+	 * @param noAnalyzerFields	不需要进行分词的属性名称
+	 * @return
+	 */
 	public Field getField(String key, Object value, String...noAnalyzerFields) {
 		Field field = null;
 
