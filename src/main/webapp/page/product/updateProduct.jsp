@@ -6,14 +6,17 @@
 <title>修改产品信息</title>
 </head>
 <body>
-	<div>
-		<input type="text" id="id" value="${product.id}"/><span style="color: red; display: none;"> * 不能为空</span>
-		<input type="text" id="name" value="${product.name}"/><span style="color: red; display: none;"> * 不能为空</span>
-		<input type="text" id="content" value="${product.content}"/><span style="color: red; display: none;"> * 不能为空</span>
-		<input type="text" id="price" value="${product.price}"/><span style="color: red; display: none;"> * 不能为空</span>
+	<div>修改产品信息</div><br/>
+	<div id="editForm">
+		<input type="hidden" id="id" value="${product.id}"/>
+		name：<input type="text" id="name" value="${product.name}"/><span style="color: red; display: none;"> * 不能为空</span><br/><br/>
+		content：<input type="text" id="content" value="${product.content}"/><span style="color: red; display: none;"> * 不能为空</span><br/><br/>
+		number：<input type="text" id="number" value="${product.number}"/><span style="color: red; display: none;"> * 不能为空</span><br/><br/>
+		price：<input type="text" id="price" value="${product.price}"/><span style="color: red; display: none;"> * 不能为空</span><br/><br/>
 	</div>
 	<div>
 		<input type="button" value="保存" id="editSaveProductBtn"/>
+		<input type="button" value="取消" id="goBack"/>
 	</div>
 	
 	<script type="text/javascript" src="${pageContext.request.contextPath}/resource/jquery/jquery-1.9.1.min.js"></script>
@@ -22,8 +25,13 @@
 		$(function(){
 			
 			// 保存修改信息
-			$("#updateProductContainer").on("click", "#editSaveProductBtn", function(){
+			$("#editSaveProductBtn").on("click", function(){
 				editSaveProduct();
+			});
+			
+			// 返回
+			$("#goBack").click(function(){
+				window.location.href="${pageContext.request.contextPath}/index.jsp";
 			});
 		});
 		
@@ -32,6 +40,7 @@
 			var id = $("#id").val();
 			var name = $("#name").val();
 			var content = $("#content").val();
+			var number = $("#number").val();
 			var price = $("#price").val();
 			
 			if(!isEmpty(name)) {
@@ -40,6 +49,10 @@
 			}
 			if(!isEmpty(content)) {
 				$("#content").next("span").show();
+				return false;
+			}
+			if(!isEmpty(number)) {
+				$("#number").next("span").show();
 				return false;
 			}
 			if(!isEmpty(price)) {
@@ -54,30 +67,34 @@
 					"id": id,
 					"name": name,
 					"content": content,
+					"number": number,
 					"price": price
 				},
 				dataType: 'json',
 				cache: false,
-				async: true,
+				async: false,
 				success: function(data) {
 					if(data) {
 						if(data.success) {
-							$("#addMsgInfo").css({"color": "green"}).text("添加成功！").show();
-							$("#name").val("");
-							$("#content").val("");
-							$("#price").val("");
+							alert("修改成功");
+							//window.location.href="${pageContext.request.contextPath}/index.jsp";
 						} else {
-							$("#addMsgInfo").css({"color": "red"}).text("添加失败！").show();
+							alert("修改失败");
 						}
-						setTimeout(function(){
-							$("#addMsgInfo").text("").hide();
-						} , 2000);
 					}
 				},
 				error: function(){
 					alert("请求出错");
 				}
 			});
+		}
+		
+		function isEmpty(val) {
+			if(val != null && $.trim(val) != "" && val !="undefined") {
+				return true;
+			} else {
+				return false;
+			}
 		}
 	</script>	
 </body>

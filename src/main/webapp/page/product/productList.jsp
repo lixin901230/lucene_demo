@@ -45,6 +45,7 @@
 						<th>ID</th>
 						<th>Name</th>
 						<th>Content</th>
+						<th>Number</th>
 						<th>Price</th>
 						<th>操作</th>
 					</tr>
@@ -53,10 +54,11 @@
 							<td>${product.id}</td>
 							<td>${product.name}</td>
 							<td>${product.content}</td>
+							<td>${product.number}</td>
 							<td>${product.price}</td>
 							<td>
+								<a href="${pageContext.request.contextPath}/productSearch/toUpdateProduct.do?productId=${product.id}">修改</a> |  
 								<a href="javascript:void(0);" id="deleteProduct_${product.id}">删除</a>
-								<a href="javascript:void(0);" id="updateProduct_${product.id}">修改</a> | 
 							</td>
 						</tr>
 					</c:forEach>
@@ -71,50 +73,20 @@
 
 		$(function(){
 			
-			// 加载修改页面
-// 			$(".gridtable").on("click", "a[id^='updateProduct_']", function(){
-// 				loadUpdateProductPage(this);
-// 			});
-			
-			// 加载修改页面
+			// 删除
 			$(".gridtable").on("click", "a[id^='deleteProduct_']", function(){
 				deleteProduct(this);
 			});
 		});
 		
 
-		// 加载修改产品信息页面
-		function loadUpdateProductPage(_this) {
-			var id = $(_this).prop("id");
-			id = id.substring("updateProduct_".length, id.length);
-			alert("id="+id);
-			$.ajax({
-				url: '${pageContext.request.contextPath}/productSearch/getProductById.do',
-				type: 'post',
-				data: {"id": id},
-				dataType: 'html',
-				cache: false,
-				async: true,
-				success: function(data) {
-					if(data) {
-						$("#updateProductContainer").show().html(data);
-					} else {
-						$("#updateProductContainer").show().text("加载修改表单失败");
-					}
-				},
-				error: function(){
-					alert("请求出错");
-				}
-			});
-		}
-		
 		// 删除
 		function deleteProduct(_this) {
 			var id = $(_this).prop("id");
 			id = id.substring("deleteProduct_".length, id.length);
 			alert("id="+id);
 			$.ajax({
-				url: '${pageContext.request.contextPath}/productSearch/deleteProduct.do',
+				url: '${pageContext.request.contextPath}/productSearch/deleteProductById.do',
 				type: 'post',
 				data: {"productId": id},
 				dataType: 'json',
@@ -123,7 +95,7 @@
 				success: function(data) {
 					if(data) {
 						if(data.success) {
-							alert("删除成功")
+							alert("删除成功");
 							//$("#searchBtn").click();
 						}
 					} else {

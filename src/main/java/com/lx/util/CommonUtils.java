@@ -24,7 +24,7 @@ public class CommonUtils {
 	
 	public static void main(String[] args) throws Exception {
 		ProductInfo product = new ProductInfo();
-		product.setId(1);
+		product.setId(UUIDTools.getUUID());
 		product.setName("西瓜");
 		product.setContent("西瓜是一种水果");
 		product.setPrice(2.5);
@@ -102,7 +102,7 @@ public class CommonUtils {
             PropertyDescriptor[] descriptors = propertyUtilsBean.getPropertyDescriptors(obj); 
             for (int i = 0; i < descriptors.length; i++) { 
                 String name = descriptors[i].getName(); 
-                if (!"class".equals(name)) { 
+                if (!"class".equals(name)) {
                     params.put(name, propertyUtilsBean.getNestedProperty(obj, name)); 
                 } 
             } 

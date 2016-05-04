@@ -17,12 +17,14 @@ import org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.FloatField;
 import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -68,13 +70,13 @@ public class LuceneManager {
 	 * 		因此后期可以一个业务模块的相关表建一个单独的索引文件 或 对每个表建一个单独的索引文件 存放到不同的索引目录中，
 	 * 		搜索时同时建立多个搜索任务从多个索引目录下的索引文件中搜索，有助于搜索性能优化
 	 */
-	public void addIndexBatch(List<Map<String, Object>> dbRows) {
+	public void addIndexBatch(List<Map<String, Object>> dbRows, String...noAnalyzerFields) {
 		
 		IndexWriter indexWriter = null;
 		try {
 			indexWriter = getIndexWriter();
 
-			List<Document> docs = getDocuments(dbRows);
+			List<Document> docs = getDocuments(dbRows, noAnalyzerFields);
 			
 			indexWriter.addDocuments(docs);
 			indexWriter.commit();
@@ -91,15 +93,15 @@ public class LuceneManager {
 	 * <b>注意：该map中的元素只能是简单类型</b>
 	 * @param dbRowMap
 	 */
-	public void addIndex(Map<String, Object> dbRowMap) {
+	public void addIndex(Map<String, Object> dbRowMap, String...noAnalyzerFields) {
 		
 		IndexWriter indexWriter = null;
 		try {
 			indexWriter = getIndexWriter();
 
-			List<Document> docs = getDocument(dbRowMap);
+			Document doc = getDocument(dbRowMap, noAnalyzerFields);
 			
-			indexWriter.addDocuments(docs);
+			indexWriter.addDocument(doc);
 			indexWriter.commit();
 			
 		} catch (Exception e) {
@@ -114,10 +116,10 @@ public class LuceneManager {
 	 * 依赖{@link CommonUtils#beanToMap(Object)}
 	 * @param object
 	 */
-	public void addIndex(Object object) {
+	public void addIndex(Object object, String...noAnalyzerFields) {
 		
 		Map<String, Object> dbRowMap = CommonUtils.beanToMap(object);
-		addIndex(dbRowMap);
+		addIndex(dbRowMap, noAnalyzerFields);
 	}
 	
 	/**
@@ -126,7 +128,7 @@ public class LuceneManager {
 	 * @param fieldValue	需要修改的索引文档的词条属性名称
 	 * @param newData		需要更新的新数据map；<b>注意：该map中的元素只能是简单类型</b>
 	 */
-	public void updateIndex(String fieldName, String fieldValue, Map<String, Object> newData) {
+	public void updateIndex(String fieldName, String fieldValue, Map<String, Object> newData, String...noAnalyzerFields) {
 		
 		IndexWriter indexWriter = null;
 		try {
@@ -136,8 +138,8 @@ public class LuceneManager {
 			
 			List<Map<String, Object>> newDatas = new ArrayList<Map<String, Object>>();
 			newDatas.add(newData);
-			List<Document> docs = getDocuments(newDatas);
-			indexWriter.updateDocuments(term, docs);
+			List<Document> docs = getDocuments(newDatas, noAnalyzerFields);
+			indexWriter.updateDocuments(term, docs);	//Atomically deletes documents matching the provided delTerm and adds a block of documents with sequentially assigned document IDs, such that an external reader will see all or none of the documents.
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -153,10 +155,10 @@ public class LuceneManager {
 	 * @param fieldValue	需要修改的索引文档的词条属性名称
 	 * @param newObject		需要更新的新对象
 	 */
-	public void updateIndex(String fieldName, String fieldValue, Object newObject) {
+	public void updateIndex(String fieldName, String fieldValue, Object newObject, String...noAnalyzerFields) {
 		
 		Map<String, Object> dbRowMap = CommonUtils.beanToMap(newObject);
-		updateIndex(fieldName, fieldValue, dbRowMap);
+		updateIndex(fieldName, fieldValue, dbRowMap, noAnalyzerFields);
 	}
 	
 	/**
@@ -345,20 +347,22 @@ public class LuceneManager {
 	/**
 	 * 根据数据库记录集合创建索引文档对象
 	 * @param dbRow	一个
+	 * @param noAnalyzerFields 不分词的属性
 	 * @return
 	 */
-	public List<Document> getDocument(Map<String, Object> dbRow) {
+	public Document getDocument(Map<String, Object> dbRow, String...noAnalyzerFields) {
 		List<Map<String, Object>> dbRows = new ArrayList<Map<String, Object>>();
 		dbRows.add(dbRow);
-		List<Document> documents = getDocuments(dbRows);
-		return documents;
+		List<Document> documents = getDocuments(dbRows, noAnalyzerFields);
+		Document doc = documents.get(0);
+		return doc;
 	}
 	/**
 	 * 根据数据库记录集合创建索引文档对象
 	 * @param dbRows	一个含Map类型元素的List集合，每个Map对应数据库一条记录，map中的买个元素对应数据库中的一个字段（或对象的一个属性）
 	 * @return
 	 */
-	public List<Document> getDocuments(List<Map<String, Object>> dbRows) {
+	public List<Document> getDocuments(List<Map<String, Object>> dbRows, String...noAnalyzerFields) {
 		
 		List<Document> docs = new ArrayList<Document>();
 		for (Map<String, Object> rowMap : dbRows) {
@@ -370,7 +374,7 @@ public class LuceneManager {
 				Field field = null;
 				Object value = rowMap.get(key);
 				if (value != null) {
-					field = getField(key, value);
+					field = getField(key, value, noAnalyzerFields);
 		        }
 				if(field != null) {
 					doc.add(field);
@@ -381,9 +385,22 @@ public class LuceneManager {
 		return docs;
 	}
 	
-	public Field getField(String key, Object value) {
+	public Field getField(String key, Object value, String...noAnalyzerFields) {
 		Field field = null;
-		if (value instanceof java.lang.Integer) {
+
+		FieldType type = new FieldType();
+		if(noAnalyzerFields != null && noAnalyzerFields.length > 0) {
+			for (String _field : noAnalyzerFields) {
+				if(_field.equalsIgnoreCase(key)) {
+					type.setTokenized(false);
+				}
+			}
+		}
+		type.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS);
+		type.setStored(true);
+		field = new Field(key, value.toString(), type);
+		
+		/*if (value instanceof java.lang.Integer) {
         	
             field = new IntField(key, (Integer) value, Field.Store.YES);
         } else if (value instanceof java.lang.Long) {
@@ -403,7 +420,7 @@ public class LuceneManager {
         	field = new DoubleField(key, (Double) value, Field.Store.YES);
         } else if (value instanceof java.lang.Byte) {
         	
-        	field = new DoubleField(key, (Byte) value, Field.Store.YES);
+        	//field = new DoubleField(key, (Byte) value, Field.Store.YES);
         } else if (value instanceof java.lang.Character) {
         	
         	field = new TextField(key, value.toString(), Field.Store.YES);
@@ -418,7 +435,7 @@ public class LuceneManager {
         	field = new IntField(key, (Short) value, Field.Store.YES);
         } else {
         	field = new StringField(key, value.toString(), Field.Store.YES);
-        }
+        }*/
 		return field;
 	}
 	

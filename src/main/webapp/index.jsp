@@ -16,22 +16,8 @@
 		<div style="margin: 25px 25px;"></div>
 		
 		<div>在数据库中添加一条产品信息数据并将该数据添加到lucene索引库中</div>
-		<div>
-			<input type="button" id="loadAddProductPage" value="添加产品信息" title="在数据库中添加一条产品信息数据并将该数据添加到lucene索引库中"/>
-			<span id="addMsgInfo" style="font-size: 12px; display: none;"></span>
-			<div id="addProductContainer">
-				
-			</div>
-		</div>
+		<div><input type="button" id="toAddProductPage" value="添加产品信息" title="在数据库中添加一条产品信息数据并将该数据添加到lucene索引库中"/></div>
 
-		<div style="margin: 25px 25px;"></div>
-		
-		<div>
-			<span id="updateMsgInfo" style="font-size: 12px; display: none;"></span>
-			<div id="updateProductContainer">
-				
-			</div>
-		
 		<div style="margin: 25px 25px;"></div>
 		
 		<div>全文搜索产品信息</div>
@@ -40,7 +26,7 @@
 			<input type="button" id="searchBtn" value="搜  索"/>
 			<span id="searchInfo"></span>
 		</div>
-		<div style="border: 1px solid #ddd; width: 60%; margin-top: 20px; padding: 50px 50px;">
+		<div style="border: 1px solid #ddd; width: 60%; margin-top: 10px; padding-top: 20px; padding-bottom: 20px;">
 			<div id="searchResultContainer">搜索结果</div>
 		</div>
 	</div>
@@ -60,17 +46,10 @@
 				search();
 			});
 			
-			// 添加一条记录
-			$("#loadAddProductPage").on("click", function(){
-				loadAddProductPage();
-				//window.location.href="${pageContext.request.contextPath}/page/product/addProduct.jsp";
+			// 去添加产品信息页面
+			$("#toAddProductPage").click(function(){
+				window.location.href="${pageContext.request.contextPath}/page/product/addProduct.jsp";
 			});
-			
-			// 提交保存添加信息
-			$("#addProductContainer").on("click", "#saveProductBtn", function(){
-				saveProduct();
-			});
-			
 		});
 		
 		// 搜索
@@ -127,86 +106,6 @@
 			});
 		}
 		
-		// 加载添加页面表单
-		function loadAddProductPage() {
-			$.ajax({
-				url: '${pageContext.request.contextPath}/page/product/addProduct.jsp',
-				type: 'get',
-				dataType: 'html',
-				cache: false,
-				async: true,
-				success: function(data) {
-					if(data) {
-						$("#addProductContainer").show().html(data);
-					} else {
-						$("#addProductContainer").show().text("加载添加表单失败");
-					}
-				},
-				error: function(){
-					alert("请求出错");
-				}
-			});
-		}
-	
-		// 提交保存添加信息
-		function saveProduct(){
-			
-			var name = $("#name").val();
-			var content = $("#content").val();
-			var price = $("#price").val();
-			
-			if(!isEmpty(name)) {
-				$("#name").next("span").show();
-				return false;
-			}
-			if(!isEmpty(content)) {
-				$("#content").next("span").show();
-				return false;
-			}
-			if(!isEmpty(price)) {
-				$("#price").next("span").show();
-				return false;
-			}
-			
-			$.ajax({
-				url: '${pageContext.request.contextPath}/productSearch/addProduct.do',
-				type: 'post',
-				data: {
-					"name": name,
-					"content": content,
-					"price": price
-				},
-				dataType: 'json',
-				cache: false,
-				async: true,
-				success: function(data) {
-					if(data) {
-						if(data.success) {
-							$("#addMsgInfo").css({"color": "green"}).text("添加成功！").show();
-							$("#name").val("");
-							$("#content").val("");
-							$("#price").val("");
-						} else {
-							$("#addMsgInfo").css({"color": "red"}).text("添加失败！").show();
-						}
-						setTimeout(function(){
-							$("#addMsgInfo").text("").hide();
-						} , 2000);
-					}
-				},
-				error: function(){
-					alert("请求出错");
-				}
-			});
-		};
-		
-		function isEmpty(val) {
-			if(val != null && $.trim(val) != "" && val !="undefined") {
-				return true;
-			} else {
-				return false;
-			}
-		}
 	</script>
 </body>
 </html>

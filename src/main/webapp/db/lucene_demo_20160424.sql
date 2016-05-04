@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50121
 File Encoding         : 65001
 
-Date: 2016-04-27 16:28:13
+Date: 2016-05-04 10:47:03
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -52,17 +52,18 @@ INSERT INTO `country_info` VALUES ('fc69a2ec27864896822c4e167b69f956', '日本',
 -- ----------------------------
 DROP TABLE IF EXISTS `product_info`;
 CREATE TABLE `product_info` (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `name` varchar(200) DEFAULT NULL,
-  `content` text,
-  `price` double DEFAULT NULL,
+  `id` varchar(50) NOT NULL,
+  `name` varchar(200) DEFAULT NULL COMMENT '名称',
+  `content` text COMMENT '内容说明',
+  `price` double DEFAULT NULL COMMENT '价格',
+  `number` int(11) DEFAULT NULL COMMENT '数量',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='商品信息表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='商品信息表';
 
 -- ----------------------------
 -- Records of product_info
 -- ----------------------------
-INSERT INTO `product_info` VALUES ('1', '草鱼', '湖南张家界清水鱼', '12');
-INSERT INTO `product_info` VALUES ('2', '大米', '东北优质大米', '90');
-INSERT INTO `product_info` VALUES ('3', '橘子', '湖南张家界石门橘子', '15');
-INSERT INTO `product_info` VALUES ('4', '葡萄', '新疆高原又大又甜的葡萄', '20');
+INSERT INTO `product_info` VALUES ('0af5455fe4544d72b9dfbd8be97e8c2a', '草鱼', '湖南张家界清水鱼', '12', '60');
+INSERT INTO `product_info` VALUES ('0dc9ec53a4dd4133b20a171345c87db7', '大米', '东北优质大米', '90', '10000');
+INSERT INTO `product_info` VALUES ('1d3c21850034464fb6cb9e6afa544a9f', '橘子', '湖南张家界石门橘子', '15', '5000');
+INSERT INTO `product_info` VALUES ('59be00c93e5146868c92a8e0b6491844', '葡萄', '新疆高原又大又甜的葡萄', '20', '500');

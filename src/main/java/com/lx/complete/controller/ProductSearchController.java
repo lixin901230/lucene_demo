@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lx.complete.bean.ProductInfo;
 import com.lx.complete.service.IProductSearchService;
@@ -21,6 +22,7 @@ import com.lx.lucene.util.LuceneManager;
 import com.lx.util.CommonUtils;
 import com.lx.util.HandleResultUtils;
 import com.lx.util.JsonUtils;
+import com.lx.util.UUIDTools;
 
 /**
  * 产品信息搜Controller
@@ -91,7 +93,7 @@ public class ProductSearchController extends BaseController {
 				Map<String, Object> map = CommonUtils.beanToMap(productInfo);
 				data.add(map);
 			}
-			new LuceneManager().addIndexBatch(data);
+			new LuceneManager().addIndexBatch(data, "id");
 			resultMap = HandleResultUtils.getResultMap(true, "lucene索引库创建成功");
 		} catch (Exception e) {
 			resultMap = HandleResultUtils.getResultMap(false, "lucene索引库创建失败，原因："+e);
@@ -112,23 +114,24 @@ public class ProductSearchController extends BaseController {
 		
 		Map<String, Object> result = null;
 		try {
+			product.setId(UUIDTools.getUUID());
 			boolean success = productSearchService.addProductInfo(product);
 			if(success) {
-				new LuceneManager().addIndex(product);
+				new LuceneManager().addIndex(product, "id");
 				result = HandleResultUtils.getResultMap(true, "添加产品信息成功");
 			}
 		} catch (Exception e) {
-			result = HandleResultUtils.getResultMap(true, "添加产品信息失败，原因："+e);
+			result = HandleResultUtils.getResultMap(false, "添加产品信息失败，原因："+e);
 			e.printStackTrace();
 		}
 		String jsonStr = JsonUtils.objToJsonStr(result);
 		HandleResultUtils.writeJsonStr(response, jsonStr);
 	}
 	
-	@RequestMapping("/getProductById")
-	public String getProductById(String id, Model model) {
+	@RequestMapping("/toUpdateProduct")
+	public String toUpdateProduct(String productId, Model model) {
 		try {
-			ProductInfo productInfo = productSearchService.queryProductInfoByIdForDB(id);
+			ProductInfo productInfo = productSearchService.queryProductInfoByIdForDB(productId);
 			model.addAttribute("product", productInfo);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -140,6 +143,7 @@ public class ProductSearchController extends BaseController {
 	 * 修改数据库产品信息时，同时更新lucene索引库
 	 * @param product
 	 */
+//	@ResponseBody
 	@RequestMapping("/updateProductById.do")
 	public void updateProduct(ProductInfo product) {
 		Map<String, Object> result = null;
@@ -147,20 +151,19 @@ public class ProductSearchController extends BaseController {
 			boolean success = productSearchService.updateProductInfoById(product);
 			if(success) {
 				String fieldName = "id";
-				String id = product.getId().toString();
 				Map<String, Object> map = CommonUtils.beanToMap(product);
-				new LuceneManager().updateIndex(fieldName, id, map);
+				new LuceneManager().updateIndex(fieldName, product.getId(), map, "id");
 				
 				result = HandleResultUtils.getResultMap(true, "修改产品信息成功");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			result = HandleResultUtils.getResultMap(true, "修改产品信息失败，原因："+e);
+			result = HandleResultUtils.getResultMap(false, "修改产品信息失败，原因："+e);
 		}
-		
 		HttpServletResponse response = getResponse();
 		String jsonStr = JsonUtils.objToJsonStr(result);
 		HandleResultUtils.writeJsonStr(response, jsonStr);
+		//return result;
 	}
 	
 	/**
@@ -170,15 +173,20 @@ public class ProductSearchController extends BaseController {
 	 */
 	@RequestMapping("/deleteProductById.do")
 	public void deleteProduct(HttpServletRequest request, HttpServletResponse response) {
+		Map<String, Object> result = null;
 		try {
 			String productId = request.getParameter("productId");
-			boolean success = productSearchService.deleteProductInfoById(productId);
+			boolean success = true;//productSearchService.deleteProductInfoById(productId);
 			if(success) {
 				String fieldName = "id";
 				new LuceneManager().deleteIndex(fieldName, productId);
+				result = HandleResultUtils.getResultMap(true, "删除产品信息成功");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			result = HandleResultUtils.getResultMap(false, "删除产品信息失败，原因："+e);
 		}
+		String jsonStr = JsonUtils.objToJsonStr(result);
+		HandleResultUtils.writeJsonStr(response, jsonStr);
 	}
 }

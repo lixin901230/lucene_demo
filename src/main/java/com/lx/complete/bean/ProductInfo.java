@@ -2,17 +2,18 @@ package com.lx.complete.bean;
 
 public class ProductInfo {
 	
-	private Integer id;
+	private String id;
 	private String name;
 	private String content;
+	private Integer number;
 	private Double price;
 	
 	private boolean flag;	//非持久化属性
 	
-	public Integer getId() {
+	public String getId() {
 		return id;
 	}
-	public void setId(Integer id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 	public String getName() {
@@ -27,13 +28,19 @@ public class ProductInfo {
 	public void setContent(String content) {
 		this.content = content;
 	}
+	public Integer getNumber() {
+		return number;
+	}
+	public void setNumber(Integer number) {
+		this.number = number;
+	}
 	public Double getPrice() {
 		return price;
 	}
 	public void setPrice(Double price) {
 		this.price = price;
 	}
-	
+
 	public boolean isFlag() {
 		return flag;
 	}
@@ -43,8 +50,9 @@ public class ProductInfo {
 	
 	@Override
 	public String toString() {
-		return "ProductInfo [price=" + price + ", id=" + id + ", name=" + name
-				+ ", content=" + content + ", flag=" + flag + "]";
+		return "ProductInfo [id=" + id + ", number=" + number + ", name="
+				+ name + ", content=" + content + ", price=" + price
+				+ ", flag=" + flag + "]";
 	}
 	
 }

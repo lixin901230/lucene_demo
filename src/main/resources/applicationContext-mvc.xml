@@ -34,4 +34,13 @@
 		<property name="contentType" value="text/html;charset=UTF-8" />
 		<property name="order" value="0"/> 
 	</bean>
+	
+	<!-- <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter"  
+	        p:ignoreDefaultModelOnRedirect="true" >  
+		<property name="messageConverters">
+			<list>  
+			    <bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"/>
+			</list>
+		</property>
+	</bean> -->
 </beans>

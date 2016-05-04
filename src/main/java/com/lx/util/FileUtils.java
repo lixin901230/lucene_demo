@@ -3,8 +3,6 @@ package com.lx.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.lx.lucene.LuceneIndexManageTest;
-
 public class FileUtils {
 	
 	private static Logger logger = LoggerFactory.getLogger(FileUtils.class);
@@ -16,7 +14,7 @@ public class FileUtils {
 	public static String getWebappPath() {
 		
 		try {
-			String classesPath = LuceneIndexManageTest.class.getResource("/").getPath();
+			String classesPath = FileUtils.class.getResource("/").getPath();
 			classesPath = classesPath.startsWith("/") ? classesPath.substring(1) : classesPath;
 			String webPath = "";
 			if(classesPath.indexOf("WEB-INF") > -1) {

@@ -104,6 +104,18 @@
 	  	<!-- <version>1.4.7</version> -->
 	</dependency>
 	
+	<!-- jackson -->
+	<dependency>
+		<groupId>org.codehaus.jackson</groupId>
+		<artifactId>jackson-core-asl</artifactId>
+		<version>1.9.13</version>
+	</dependency>
+	<dependency>
+		<groupId>org.codehaus.jackson</groupId>
+		<artifactId>jackson-mapper-asl</artifactId>
+		<version>1.9.13</version>
+	</dependency>
+	
 	<!-- jsonlib -->
 	<dependency>
 	  <groupId>net.sf.json-lib</groupId>
@@ -553,5 +565,5 @@
   			<enabled>true</enabled>
   		</snapshots>
   	</pluginRepository>
-  </pluginRepositories>
+  </pluginRepositories> 	
 </project>

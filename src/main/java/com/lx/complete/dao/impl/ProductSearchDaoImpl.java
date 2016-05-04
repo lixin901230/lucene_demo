@@ -34,7 +34,7 @@ public class ProductSearchDaoImpl implements IProductSearchDao {
 		
 		boolean success = false;
 		SqlParameterSource paramSource = new BeanPropertySqlParameterSource(productInfo);
-		String sql = "INSERT INTO product_info(name, content, price) VALUES(:name, :content, :price)";
+		String sql = "INSERT INTO product_info(id, name, content, number, price) VALUES(:id, :name, :content, :number, :price)";
 		int flag = namedParameterJdbcTemplate.update(sql, paramSource);
 		if(flag > -1) {
 			success = true;
@@ -47,7 +47,7 @@ public class ProductSearchDaoImpl implements IProductSearchDao {
 		
 		boolean success = false;
 		SqlParameterSource paramSource = new BeanPropertySqlParameterSource(productInfo);
-		String sql = "UPDATE product_info SET name=:name, content=:content, price=:price WHERE id=:id";
+		String sql = "UPDATE product_info SET name=:name, content=:content, number=:number, price=:price WHERE id=:id";
 		int flag = namedParameterJdbcTemplate.update(sql, paramSource);
 		if(flag > -1) {
 			success = true;
@@ -70,7 +70,7 @@ public class ProductSearchDaoImpl implements IProductSearchDao {
 	
 	@Override
 	public ProductInfo queryProductInfoByIdForDB(String id) throws Exception {
-		String sql = "select id, name, content, price from product_info p where p.id=?";
+		String sql = "select id, name, content, number, price from product_info p where p.id=?";
 		RowMapper<ProductInfo> rowMapper = new BeanPropertyRowMapper<ProductInfo>(ProductInfo.class);
 		ProductInfo product = jdbcTemplate.queryForObject(sql.toString(), rowMapper, id);
 		return product;
@@ -87,7 +87,7 @@ public class ProductSearchDaoImpl implements IProductSearchDao {
 		List<Object> paramList = new ArrayList<Object>();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("SELECT * FROM product_info d WHERE 1=1");
+		sql.append("SELECT d.id, d.name, d.content, d.number, d.price FROM product_info d WHERE 1=1");
 		if(id != null) {
 			sql.append(" and d.id=? ");
 			paramList.add(id);
