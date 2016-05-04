@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,22 +42,25 @@ public class ProductSearchController extends BaseController {
 	
 	/**
 	 * 全文搜索符合条件的产品信息
-	 * @param model
+	 * @param searchKeyWord 搜索关键词
+	 * @param searchField	接收页面参数，搜索字段
+	 * @param model	返回前端页面的数据
 	 * @return
 	 */
 	@RequestMapping("/searchProducts.do")
-	public String searchProducts(ProductInfo product, Model model) {
+	public String searchProducts(String searchField, String searchKeyWord, Model model) {
 		
 		List<ProductInfo> products = new ArrayList<ProductInfo>();
 		List<Map<String, Object>> productInfos = new ArrayList<Map<String, Object>>();
 		try {
-			if(product != null) {
-				String searchField = "content";
-				String searchKey = product != null ? product.getContent() : "";
+			if(StringUtils.isNotEmpty(searchKeyWord)) {
+				if(StringUtils.isEmpty(searchField)) {
+					searchField = "content";
+				}
 				
 				// 搜索时，去lucene中搜索，没有则再从数据库中搜索（lucene中没搜到，就不用） 
-				productInfos = new LuceneManager().search(searchField, searchKey, true);
-				//productInfos = productSearchService.searchProducts(searchField, searchKey);
+				productInfos = new LuceneManager().search(searchField, searchKeyWord, true);
+				//productInfos = productSearchService.searchProducts(searchField, searchKeyWord);
 			}
 			
 			// （此步可省略，直接返回List<Map<String, Object>>集合到前端取值显示）将List<Map<String, Object>>转换为List<ProductInfo>
@@ -176,7 +180,7 @@ public class ProductSearchController extends BaseController {
 		Map<String, Object> result = null;
 		try {
 			String productId = request.getParameter("productId");
-			boolean success = true;//productSearchService.deleteProductInfoById(productId);
+			boolean success = productSearchService.deleteProductInfoById(productId);
 			if(success) {
 				String fieldName = "id";
 				new LuceneManager().deleteIndex(fieldName, productId);

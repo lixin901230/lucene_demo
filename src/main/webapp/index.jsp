@@ -22,7 +22,7 @@
 		
 		<div>全文搜索产品信息</div>
 		<div>
-			<input type="text" id="searchKey" value=""/>
+			<input type="text" id="searchKeyWord" value=""/>
 			<input type="button" id="searchBtn" value="搜  索"/>
 			<span id="searchInfo"></span>
 		</div>
@@ -55,8 +55,8 @@
 		// 搜索
 		function search() {
 			
-			var searchKey = $("#searchKey").val();
-			if(searchKey == null || $.trim(searchKey) == "") {
+			var searchKeyWord = $("#searchKeyWord").val();
+			if(searchKeyWord == null || $.trim(searchKeyWord) == "") {
 				$("#searchInfo").css({"color": "red"}).text(" * 请输入搜索关键字").show();
 				return false;
 			}
@@ -65,7 +65,8 @@
 				url: '${pageContext.request.contextPath}/productSearch/searchProducts.do',
 				type: 'post',
 				data: {
-					"content": searchKey
+					"searchField": "content",	// 搜索的属性字段
+					"searchKeyWord": searchKeyWord	// 搜索的关键字
 				},
 				dataType: 'html',
 				cache: false,
