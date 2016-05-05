@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50121
 File Encoding         : 65001
 
-Date: 2016-05-04 10:47:03
+Date: 2016-05-05 14:01:29
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -66,4 +66,11 @@ CREATE TABLE `product_info` (
 INSERT INTO `product_info` VALUES ('0af5455fe4544d72b9dfbd8be97e8c2a', '草鱼', '湖南张家界清水鱼', '12', '60');
 INSERT INTO `product_info` VALUES ('0dc9ec53a4dd4133b20a171345c87db7', '大米', '东北优质大米', '90', '10000');
 INSERT INTO `product_info` VALUES ('1d3c21850034464fb6cb9e6afa544a9f', '橘子', '湖南张家界石门橘子', '15', '5000');
+INSERT INTO `product_info` VALUES ('39e2329c3e484557b0d688189b111edf', '羊肉', '我不喜欢吃羊肉，味儿太重', '40', '150');
+INSERT INTO `product_info` VALUES ('45c05a5c1e1e4897afb460e0be94fccc', '水稻', '南方盛产水稻，湖南有优质水稻种植基地', '120', '2000');
+INSERT INTO `product_info` VALUES ('56aec30bba364317a90d7da59891fa94', '狗肉', '玉林狗肉节流行吃狗肉', '30', '5000');
 INSERT INTO `product_info` VALUES ('59be00c93e5146868c92a8e0b6491844', '葡萄', '新疆高原又大又甜的葡萄', '20', '500');
+INSERT INTO `product_info` VALUES ('6c12be39ed4341d28321f3610b67b90f', '苹果', '苹果营养价值很高，是北方的一种水果', '5', '3000');
+INSERT INTO `product_info` VALUES ('7d51d301d77f41c08bdfbcba8e023ed3', '菠萝', '菠萝是一种热带水果，味道酸酸的，很好吃', '5', '50');
+INSERT INTO `product_info` VALUES ('d3cd4879c0a943aeb81ca60a761ebaec', '牛肉', '澳洲牛肉很不错哦', '60', '2000');
+INSERT INTO `product_info` VALUES ('ff17b622e8364076af262bdfd71d4229', '猪肉', '今年的猪肉价格比较贵', '18', '300');
