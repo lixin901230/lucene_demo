@@ -485,7 +485,7 @@ public class LuceneManager {
 	public Analyzer getAnalyzer() {
 		//Analyzer analyzer = new StandardAnalyzer();		// 1、标准分词器
 		//IKAnalyzer analyzer = new IKAnalyzer();			// 2、IK分词器（第三方）
-		Analyzer analyzer = new SmartChineseAnalyzer();	// 3、中文分词器
+		Analyzer analyzer = new SmartChineseAnalyzer();		// 3、中文分词器
 		return analyzer;
 	}
 

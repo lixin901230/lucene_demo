@@ -76,7 +76,9 @@
 					if(data) {
 						if(data.success) {
 							var r = confirm("添加成功，是否继续添加？");
-							if(!r) {
+							if(r) {
+								window.location.reload();			
+							} else {
 								window.location.href="${pageContext.request.contextPath}/index.jsp";
 							}
 						} else {

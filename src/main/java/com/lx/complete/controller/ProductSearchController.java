@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lx.complete.bean.ProductInfo;
@@ -48,7 +49,7 @@ public class ProductSearchController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping("/searchProducts.do")
-	public String searchProducts(String searchField, String searchKeyWord, Model model) {
+	public String searchProducts(@RequestParam String searchField, @RequestParam String searchKeyWord, Model model) {
 		
 		List<ProductInfo> products = new ArrayList<ProductInfo>();
 		List<Map<String, Object>> productInfos = new ArrayList<Map<String, Object>>();
@@ -83,10 +84,17 @@ public class ProductSearchController extends BaseController {
 	 * 对整个数据库创建lucene索引库
 	 */
 	@RequestMapping("/createLuceneIndex.do")
-	public void createLuceneIndexForDB(HttpServletRequest request, HttpServletResponse response) {
+	@ResponseBody
+	public Map<String, Object> createLuceneIndexForDB(HttpServletRequest request, HttpServletResponse response) {
 		
-		Map<String, Object> resultMap = null;
+		Map<String, Object> result = null;
 		try {
+			
+			// 一、新建索引库前，先将原有索引库删除
+			new LuceneManager().deleteAllIndex();
+			
+			// 二、重新获取数据创建索引
+			
 			// 获取数据库数据
 			Map<String, Object> params = new HashMap<String, Object>();
 			List<ProductInfo> productList = productSearchService.queryProductInfosByDB(params);
@@ -97,15 +105,19 @@ public class ProductSearchController extends BaseController {
 				Map<String, Object> map = CommonUtils.beanToMap(productInfo);
 				data.add(map);
 			}
-			new LuceneManager().addIndexBatch(data, "id");
-			resultMap = HandleResultUtils.getResultMap(true, "lucene索引库创建成功");
+			
+			String[] noAnalyzerFields = new String[]{"id", "number", "price"};	//指定不需要分词的属性字段
+			new LuceneManager().addIndexBatch(data, noAnalyzerFields);
+			result = HandleResultUtils.getResultMap(true, "lucene索引库创建成功");
 		} catch (Exception e) {
-			resultMap = HandleResultUtils.getResultMap(false, "lucene索引库创建失败，原因："+e);
+			result = HandleResultUtils.getResultMap(false, "lucene索引库创建失败，原因："+e);
 			e.printStackTrace();
 		}
 		
-		String jsonStr = JsonUtils.objToJsonStr(resultMap);
-		HandleResultUtils.writeJsonStr(response, jsonStr);
+		//下面注释的json处理被替换：使用@ResponseBody根据springmvc中配置的jackson进行json转换并写入响应流
+		/*String jsonStr = JsonUtils.objToJsonStr(result);
+		HandleResultUtils.writeJsonStr(response, jsonStr);*/
+		return result;
 	}
 	
 	/**
@@ -113,7 +125,8 @@ public class ProductSearchController extends BaseController {
 	 * @param product
 	 */
 	@RequestMapping("/addProduct.do")
-	public void addProduct(ProductInfo product, 
+	@ResponseBody
+	public Map<String, Object> addProduct(ProductInfo product, 
 			HttpServletRequest request, HttpServletResponse response) {
 		
 		Map<String, Object> result = null;
@@ -121,15 +134,18 @@ public class ProductSearchController extends BaseController {
 			product.setId(UUIDTools.getUUID());
 			boolean success = productSearchService.addProductInfo(product);
 			if(success) {
-				new LuceneManager().addIndex(product, "id");
+				String[] noAnalyzerFields = new String[]{"id", "number", "price"};	//指定不需要分词的属性字段
+				new LuceneManager().addIndex(product, noAnalyzerFields);
 				result = HandleResultUtils.getResultMap(true, "添加产品信息成功");
 			}
 		} catch (Exception e) {
 			result = HandleResultUtils.getResultMap(false, "添加产品信息失败，原因："+e);
 			e.printStackTrace();
 		}
-		String jsonStr = JsonUtils.objToJsonStr(result);
-		HandleResultUtils.writeJsonStr(response, jsonStr);
+		//下面注释的json处理被替换：使用@ResponseBody根据springmvc中配置的jackson进行json转换并写入响应流
+		/*String jsonStr = JsonUtils.objToJsonStr(result);
+		HandleResultUtils.writeJsonStr(response, jsonStr);*/
+		return result;
 	}
 	
 	@RequestMapping("/toUpdateProduct")
@@ -147,16 +163,17 @@ public class ProductSearchController extends BaseController {
 	 * 修改数据库产品信息时，同时更新lucene索引库
 	 * @param product
 	 */
-//	@ResponseBody
 	@RequestMapping("/updateProductById.do")
-	public void updateProduct(ProductInfo product) {
+	@ResponseBody
+	public Map<String, Object> updateProduct(ProductInfo product) {
 		Map<String, Object> result = null;
 		try {
 			boolean success = productSearchService.updateProductInfoById(product);
 			if(success) {
 				String fieldName = "id";
+				String[] noAnalyzerFields = new String[]{"id", "number", "price"};	//指定不需要分词的属性字段
 				Map<String, Object> map = CommonUtils.beanToMap(product);
-				new LuceneManager().updateIndex(fieldName, product.getId(), map, "id");
+				new LuceneManager().updateIndex(fieldName, product.getId(), map, noAnalyzerFields);
 				
 				result = HandleResultUtils.getResultMap(true, "修改产品信息成功");
 			}
@@ -164,10 +181,12 @@ public class ProductSearchController extends BaseController {
 			e.printStackTrace();
 			result = HandleResultUtils.getResultMap(false, "修改产品信息失败，原因："+e);
 		}
-		HttpServletResponse response = getResponse();
+		
+		//下面注释的json处理被替换：使用@ResponseBody根据springmvc中配置的jackson进行json转换并写入响应流
+		/*HttpServletResponse response = getResponse();
 		String jsonStr = JsonUtils.objToJsonStr(result);
-		HandleResultUtils.writeJsonStr(response, jsonStr);
-		//return result;
+		HandleResultUtils.writeJsonStr(response, jsonStr);*/
+		return result;
 	}
 	
 	/**

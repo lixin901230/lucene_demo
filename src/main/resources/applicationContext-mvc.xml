@@ -35,12 +35,16 @@
 		<property name="order" value="0"/> 
 	</bean>
 	
-	<!-- <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter"  
-	        p:ignoreDefaultModelOnRedirect="true" >  
+	<!-- springmvc @ResponseBody 使用jackson 返回json -->
+	<bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+		<property name="ignoreDefaultModelOnRedirect" value="true"></property>
 		<property name="messageConverters">
 			<list>  
-			    <bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"/>
+			    <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>
+			    <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+			    	<constructor-arg index="0" value="UTF-8"></constructor-arg>
+			    </bean>
 			</list>
 		</property>
-	</bean> -->
+	</bean>
 </beans>

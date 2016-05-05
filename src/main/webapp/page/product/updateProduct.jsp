@@ -76,7 +76,10 @@
 				success: function(data) {
 					if(data) {
 						if(data.success) {
-							alert("修改成功");
+							var r = confirm("修改成功，是否回到搜索首页？");
+							if(r) {
+								window.location.href="${pageContext.request.contextPath}/index.jsp";
+							}
 							//window.location.href="${pageContext.request.contextPath}/index.jsp";
 						} else {
 							alert("修改失败");

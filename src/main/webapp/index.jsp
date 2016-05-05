@@ -22,6 +22,14 @@
 		
 		<div>全文搜索产品信息</div>
 		<div>
+			搜索字段:
+			<select id="searchFieldName">
+				<option value="id">id</option>
+				<option value="name">name</option>
+				<option value="content" selected="selected">content</option>
+				<option value="number">number</option>
+				<option value="price">price</option>
+			</select>
 			<input type="text" id="searchKeyWord" value=""/>
 			<input type="button" id="searchBtn" value="搜  索"/>
 			<span id="searchInfo"></span>
@@ -61,11 +69,16 @@
 				return false;
 			}
 			
+			var selectedOptions = $("#searchFieldName option:selected").val();
+			if(!selectedOptions) {
+				selectedOptions = "content";
+			}
+			
 			$.ajax({
 				url: '${pageContext.request.contextPath}/productSearch/searchProducts.do',
 				type: 'post',
 				data: {
-					"searchField": "content",	// 搜索的属性字段
+					"searchField": selectedOptions,	// 搜索的属性字段
 					"searchKeyWord": searchKeyWord	// 搜索的关键字
 				},
 				dataType: 'html',
