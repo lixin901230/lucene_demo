@@ -9,8 +9,8 @@
 	<div>
 		<div>对数据库中的数据创建lucene索引库</div>
 		<div>
-			<input type="button" id="createLuceneIndex" value="重新创建索引" title="对数据库数据创建lucene索引"/>
-			<span id="msgInfo" style="font-size: 12px; display: none;"></span>
+			<input type="button" id="createLuceneIndex" value="创建索引" title="对数据库数据创建lucene索引"/>
+			<span id="msgInfo" style="display: none;"></span>
 		</div>
 		
 		<div style="margin: 25px 25px;"></div>
@@ -46,7 +46,10 @@
 			
 			// 创建lucene索引（对数据库的数据创建索引
 			$("#createLuceneIndex").on("click", function(){
-				createLuceneIndex();
+				var r = confirm("对数据库中的数据创建lucene索引库\n（若已存在索引库，该操作将先删除整个索引库后，\n再对数据库全部数据重建lucene索引库）？");
+				if(r) {
+					createLuceneIndex();
+				}
 			});
 			
 			// 使用lucene进行全文搜索
