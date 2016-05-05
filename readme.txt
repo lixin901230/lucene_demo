@@ -10,7 +10,13 @@ lucene版本与jdk版本对照：
 
 lucene 索引查看工具luke下载地址：
 	https://yunpan.cn/cq7QybnmCsk6a  访问密码 0452
-
+	
+示例demo内容：	
+	1、lucene索引操作（增删改查）
+	2、lucene自带的常用分词器 及 第三方IK中文分词器 演示
+	3、lucene各种查询对象演示
+	4、lucene搜索结果关键字高亮显示演示
+	5、（实战）模拟一个真实项目中对数据库的增、删、改时如何使用lucene创建、更新、删除lucene索引库 以及 如何根据lucene索引进行全文搜索
 
 示例目录说明：
 	com.lx.lucene				演示纯lucene 的索引管理（增删改查）、分词器（含第三方IK分词器）、各种查询器 ，及搜索结果高亮显示示例
