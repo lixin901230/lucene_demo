@@ -50,7 +50,7 @@ import com.lx.util.CommonUtils;
 import com.lx.util.FileUtils;
 
 /**
- * lucene 工具类，含索引的添、删、改、查 寄其他索引文件操作
+ * lucene 工具类，含索引的添、删、改、查 及其他索引文件操作
  * 
  * @author lx
  */
