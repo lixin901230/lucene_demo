@@ -16,7 +16,7 @@
   	<org.apache.lucene.version>5.4.1</org.apache.lucene.version>
   	<org.springframework.version>4.1.6.RELEASE</org.springframework.version>
   	<org.slf4j.version>1.7.9</org.slf4j.version>
-  	<org.codehaus.jackson.version>1.9.13</org.codehaus.jackson.version>
+  	<com.fasterxml.jackson.version>2.7.0</com.fasterxml.jackson.version>
   	<jdk.version>1.7</jdk.version>
   	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>

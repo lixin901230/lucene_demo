@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lx.complete.bean.ProductInfo;
 import com.lx.complete.service.IProductSearchService;
+import com.lx.lucene.index.manager.IndexManager;
 import com.lx.lucene.util.LuceneManager;
 import com.lx.util.CommonUtils;
 import com.lx.util.HandleResultUtils;
@@ -135,7 +136,13 @@ public class ProductSearchController extends BaseController {
 			boolean success = productSearchService.addProductInfo(product);
 			if(success) {
 				String[] noAnalyzerFields = new String[]{"id", "number", "price"};	//指定不需要分词的属性字段
+				
+				// 方式1：直接使用{@link LuceneManager}中IndexWriter的api操作索引，性能低（因为都是实时commit的，commit很耗费资源）
 				new LuceneManager().addIndex(product, noAnalyzerFields);
+				
+				// 方式2（推荐）：使用优化后的IndexManager的封装进行索引操作（会使用TrackingIndexWriter的api操作索引，操作后暂时不提交，详细见：{@link IndexManager}类说明）
+				//new IndexManager().addIndex(product, noAnalyzerFields);
+				
 				result = HandleResultUtils.getResultMap(true, "添加产品信息成功");
 			}
 		} catch (Exception e) {
