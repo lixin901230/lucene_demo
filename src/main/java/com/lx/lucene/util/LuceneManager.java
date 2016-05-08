@@ -50,6 +50,8 @@ import com.lx.util.CommonUtils;
 import com.lx.util.FileUtils;
 
 /**
+ * 使用 IndexWriter 和 IndexReader
+ * 
  * lucene 工具类，含索引的添、删、改、查 及其他索引文件操作
  * 
  * @author lx
@@ -501,11 +503,7 @@ public class LuceneManager {
 				Directory directory = createDirectory();
 				Analyzer analyzer = getAnalyzer();
 				IndexWriterConfig writerConfig = new IndexWriterConfig(analyzer);
-				if(!checkExistsIndex()) {
-					writerConfig.setOpenMode(OpenMode.CREATE);	//Create a new index in the directory, removing any previously indexed documents
-				} else {
-					writerConfig.setOpenMode(OpenMode.CREATE_OR_APPEND);	// Add new documents to an existing index
-				}
+				writerConfig.setOpenMode(OpenMode.CREATE_OR_APPEND);	// Add new documents to an existing index
 				indexWriter = new IndexWriter(directory, writerConfig);
 			}
 		}
