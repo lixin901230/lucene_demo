@@ -2,6 +2,9 @@
 /.externalToolBuilders/
 /.springBeans/
 
+/.classpath
+/.project
+
 /src/main/webapp/luceneData/luceneIndex/
 /target/
 /src/main/webapp/WEB-INF/classes/
