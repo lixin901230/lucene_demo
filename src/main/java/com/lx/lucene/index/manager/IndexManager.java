@@ -46,7 +46,7 @@ import com.lx.util.FileUtils;
 
 /**
  * 索引管理<br/><br/>
- * 注：此索引管理<b> 支持近实时搜索 </b>，
+ * 注：<b> 支持近实时搜索 </b>，
  * 即索引更新但未提交写入硬盘只是flush到缓冲区中，也能进行搜索，这样减少commit次数节省资源消耗，并由一定的提交策略提交缓冲区的索引写入硬盘<br/>
  * 比{@link LuceneManager}性能更好，因为{@link LuceneManager}类中每次索引操作都会commit提交索引写入硬盘，很耗费资源<br/><br/>
  * 
@@ -106,7 +106,7 @@ public class IndexManager {
 			tkWriter = new TrackingIndexWriter(writer);	//为writer 包装了一层
 			
 			//ControlledRealTimeReopenThread，主要将writer装，每个方法都没有commit 操作。
-			//内存索引重读线程
+			//内存索引重读线程（即启动SearcherManager的maybeRefresh()线程，继续索引重读）
 			crtThread = new ControlledRealTimeReopenThread<IndexSearcher>(tkWriter, manager, 5.0, 0.025);
 			crtThread.setDaemon(true);	//设置indexSearcher的守护线程
 			crtThread.setName("Controlled Real Time Reopen Thread");
