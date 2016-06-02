@@ -242,7 +242,6 @@ public class LuceneManager {
 	 */
 	public List<Map<String, Object>> search(String fieldName, String fieldValue, boolean isHighlight) {
 		
-		IndexReader indexReader = null;
 		List<Map<String, Object>> resultEntrys = new ArrayList<Map<String, Object>>();
 		try {
 			
@@ -534,8 +533,8 @@ public class LuceneManager {
 	 */
 	public IndexSearcher getIndexSearcher() throws Exception {
 		
-		IndexReader reader = getIndexReader();
-		IndexSearcher searcher = new IndexSearcher(reader);
+		indexReader = getIndexReader();
+		IndexSearcher searcher = new IndexSearcher(indexReader);
 		return searcher;
 	}
 	
