@@ -7,7 +7,6 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.lx.complete.bean.ProductInfo;
-import com.lx.lucene.index.manager.IndexManager;
 import com.lx.util.FileUtils;
 import com.lx.util.UUIDTools;
 
