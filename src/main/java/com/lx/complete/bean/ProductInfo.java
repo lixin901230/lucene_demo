@@ -8,6 +8,31 @@ public class ProductInfo {
 	private Integer number;
 	private Double price;
 	
+	public ProductInfo() {
+		
+	}
+	
+	public ProductInfo(String id, String name, String content, Integer number,
+			Double price) {
+		this.id = id;
+		this.name = name;
+		this.content = content;
+		this.number = number;
+		this.price = price;
+	}
+	
+	public ProductInfo(String id, String name, String content, Integer number,
+			Double price, boolean flag) {
+		this.id = id;
+		this.name = name;
+		this.content = content;
+		this.number = number;
+		this.price = price;
+		this.flag = flag;
+	}
+
+
+
 	private boolean flag;	//非持久化属性
 	
 	public String getId() {

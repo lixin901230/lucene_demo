@@ -1,8 +1,11 @@
-package com.lx.lucene.nrtsearch;
+package com.lx.lucene.index.nrtsearch;
 
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * 请参考完整版近实时搜索索引管理类：{@link NRTSearchManager}
+ */
 public class NearRealTimeSearch1Test {
 	
     private static NearRealTimeSearch1 ns =null;
