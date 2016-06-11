@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.lx.complete.bean.ProductInfo;
 import com.lx.complete.service.IProductSearchService;
 import com.lx.lucene.index.manager.IndexManager;
-import com.lx.lucene.util.LuceneManager;
+import com.lx.lucene.index.manager.LuceneManager;
 import com.lx.util.CommonUtils;
 import com.lx.util.HandleResultUtils;
 import com.lx.util.JsonUtils;
@@ -42,6 +42,11 @@ public class ProductSearchController extends BaseController {
 	@Autowired
 	private IProductSearchService productSearchService;
 	
+	private static IndexManager indexManager;
+	static {
+		indexManager = new IndexManager();
+	}
+	
 	/**
 	 * 全文搜索符合条件的产品信息
 	 * @param searchKeyWord 搜索关键词
@@ -60,8 +65,13 @@ public class ProductSearchController extends BaseController {
 					searchField = "content";
 				}
 				
-				// 搜索时，去lucene中搜索，没有则再从数据库中搜索（lucene中没搜到，就不用） 
+				// 搜索，去lucene中搜索，没有则再从数据库中搜索（lucene中没搜到，就不用）
 				productInfos = new LuceneManager().search(searchField, searchKeyWord, true);
+				
+				// lucene近实时搜索
+				//productInfos = indexManager.search(searchField, searchKeyWord, true);
+				
+				//数据库搜索
 				//productInfos = productSearchService.searchProducts(searchField, searchKeyWord);
 			}
 			
@@ -141,7 +151,7 @@ public class ProductSearchController extends BaseController {
 				new LuceneManager().addIndex(product, noAnalyzerFields);
 				
 				// 方式2（推荐）：使用优化后的IndexManager的封装进行索引操作（会使用TrackingIndexWriter的api操作索引，操作后暂时不提交，详细见：{@link IndexManager}类说明）
-				//new IndexManager().addIndex(product, noAnalyzerFields);
+				//indexManager.addIndex(product, noAnalyzerFields);
 				
 				result = HandleResultUtils.getResultMap(true, "添加产品信息成功");
 			}

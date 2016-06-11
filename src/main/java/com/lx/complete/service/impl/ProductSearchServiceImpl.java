@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import com.lx.complete.bean.ProductInfo;
 import com.lx.complete.dao.IProductSearchDao;
 import com.lx.complete.service.IProductSearchService;
-import com.lx.lucene.util.LuceneManager;
+import com.lx.lucene.index.manager.LuceneManager;
 
 @Service
 public class ProductSearchServiceImpl implements IProductSearchService {

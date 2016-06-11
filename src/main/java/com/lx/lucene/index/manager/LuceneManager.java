@@ -1,4 +1,4 @@
-package com.lx.lucene.util;
+package com.lx.lucene.index.manager;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,7 +50,7 @@ import com.lx.util.CommonUtils;
 import com.lx.util.FileUtils;
 
 /**
- * 使用 IndexWriter 和 IndexReader
+ * 索引管理类，使用 IndexWriter 和 IndexReader操作索引<br/><br/>
  * 
  * lucene 工具类，含索引的添、删、改、查 及其他索引文件操作
  * 

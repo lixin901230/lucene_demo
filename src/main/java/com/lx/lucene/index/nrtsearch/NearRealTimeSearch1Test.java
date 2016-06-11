@@ -1,4 +1,4 @@
-package com.lx.lucene.nrtsearch;
+package com.lx.lucene.index.nrtsearch;
 
 import org.junit.Before;
 import org.junit.Test;

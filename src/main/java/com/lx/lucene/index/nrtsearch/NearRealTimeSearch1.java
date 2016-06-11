@@ -1,4 +1,4 @@
-package com.lx.lucene.nrtsearch;
+package com.lx.lucene.index.nrtsearch;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -32,7 +32,6 @@ import com.lx.util.FileUtils;
  * nrt（Near Real Time）
  * 近实时搜索测试
  * 
- * @author lx
  */
 public class NearRealTimeSearch1 {
 	
