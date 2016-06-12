@@ -2,6 +2,7 @@ package com.lx.complete.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -22,8 +23,11 @@ import com.lx.complete.bean.ProductInfo;
 import com.lx.complete.service.IProductSearchService;
 import com.lx.lucene.index.manager.IndexManager;
 import com.lx.lucene.index.manager.LuceneManager;
+import com.lx.lucene.index.nrtsearch.ConfigBean;
+import com.lx.lucene.index.nrtsearch.IndexConfig;
 import com.lx.lucene.index.nrtsearch.NRTSearchManager;
 import com.lx.util.CommonUtils;
+import com.lx.util.FileUtils;
 import com.lx.util.HandleResultUtils;
 import com.lx.util.JsonUtils;
 import com.lx.util.UUIDTools;
@@ -46,6 +50,17 @@ public class ProductSearchController extends BaseController {
 	private static IndexManager indexManager;
 	static {
 		indexManager = new IndexManager();
+	}
+	
+	/**
+	 * 获取索引存储路径
+	 * @return
+	 */
+	public static String getIndexDirPath() {
+		String webappPath = FileUtils.getWebappPath();
+		webappPath = webappPath.endsWith("/") ? webappPath : webappPath + "/";
+		String indexDirPath = webappPath + "luceneData/luceneIndex/";	//索引存放路径
+		return indexDirPath;	//索引存放路径;
 	}
 	
 	/**
@@ -72,7 +87,14 @@ public class ProductSearchController extends BaseController {
 				// lucene近实时搜索1
 				//productInfos = indexManager.search(searchField, searchKeyWord, true);
 				// lucene近实时搜索2（鼎力推荐）
-				productInfos = NRTSearchManager.getNRTSearchManager("luceneIndex").search(searchField, searchKeyWord, true);
+				HashSet<ConfigBean> set = new HashSet<ConfigBean>();	//配置NRTSearchManager实例化配置文件
+				ConfigBean bean = new ConfigBean();
+				bean.setIndexPath(getIndexDirPath());
+				bean.setIndexName("luceneIndex");
+				set.add(bean);
+				IndexConfig.setConfig(set);
+				NRTSearchManager nrtSearchManager = NRTSearchManager.getNRTSearchManager("luceneIndex");
+				productInfos = nrtSearchManager.search(searchField, searchKeyWord, true);	//搜索
 				
 				//数据库搜索
 				//productInfos = productSearchService.searchProducts(searchField, searchKeyWord);
