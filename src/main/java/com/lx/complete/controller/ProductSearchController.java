@@ -87,7 +87,7 @@ public class ProductSearchController extends BaseController {
 				
 				// lucene近实时搜索1
 				//productInfos = indexManager.search(searchField, searchKeyWord, true);
-				// lucene近实时搜索2（鼎力推荐）
+				// lucene近实时搜索2（鼎力推荐）：使用优化后的NRTSearchManager的近实时搜索索引操作类操作索引并实现近实时搜索（会使用TrackingIndexWriter的api操作索引，操作后暂时不提交，详细见：{@link NRTSearchManager}类说明）
 				HashSet<ConfigBean> set = new HashSet<ConfigBean>();	//配置NRTSearchManager实例化配置文件
 				ConfigBean bean = new ConfigBean();
 				bean.setIndexPath(getIndexDirPath());
@@ -178,7 +178,7 @@ public class ProductSearchController extends BaseController {
 				
 				// 方式2（推荐）：使用优化后的IndexManager的封装进行索引操作（会使用TrackingIndexWriter的api操作索引，操作后暂时不提交，详细见：{@link IndexManager}类说明）
 				//indexManager.addIndex(product, noAnalyzerFields);
-				// 方式3（鼎力推荐）：使用优化后的IndexManager的封装进行索引操作（会使用TrackingIndexWriter的api操作索引，操作后暂时不提交，详细见：{@link NRTSearchManager}类说明）
+				// 方式3（鼎力推荐）：使用优化后的NRTSearchManager的近实时搜索索引操作类操作索引并实现近实时搜索（会使用TrackingIndexWriter的api操作索引，操作后暂时不提交，详细见：{@link NRTSearchManager}类说明）
 				HashSet<ConfigBean> set = new HashSet<ConfigBean>();	//配置NRTSearchManager实例化配置文件
 				ConfigBean bean = new ConfigBean();
 				bean.setIndexPath(getIndexDirPath());
