@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lx.complete.bean.ProductInfo;
 import com.lx.complete.service.IProductSearchService;
-import com.lx.lucene.index.manager.IndexManager;
 import com.lx.lucene.index.manager.LuceneManager;
 import com.lx.lucene.index.nrtsearch.ConfigBean;
 import com.lx.lucene.index.nrtsearch.IndexConfig;
@@ -45,12 +44,14 @@ public class ProductSearchController extends BaseController {
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	
 	@Autowired
-	private IProductSearchService productSearchService;
+	private static IProductSearchService productSearchService;
 	
+	/*
+	 * 注意：searchProducts方法中搜索使用近实时搜索管理类NRTSearchManager时，不能初始化IndexManager，因为都是使用的同一个索引目录，一个索引文件只能运行一个IndexWriter操作
 	private static IndexManager indexManager;
 	static {
 		indexManager = new IndexManager();
-	}
+	}*/
 	
 	/**
 	 * 获取索引存储路径
@@ -178,7 +179,14 @@ public class ProductSearchController extends BaseController {
 				// 方式2（推荐）：使用优化后的IndexManager的封装进行索引操作（会使用TrackingIndexWriter的api操作索引，操作后暂时不提交，详细见：{@link IndexManager}类说明）
 				//indexManager.addIndex(product, noAnalyzerFields);
 				// 方式3（鼎力推荐）：使用优化后的IndexManager的封装进行索引操作（会使用TrackingIndexWriter的api操作索引，操作后暂时不提交，详细见：{@link NRTSearchManager}类说明）
-				NRTSearchManager.getNRTSearchManager("luceneIndex").addIndex(product, noAnalyzerFields);
+				HashSet<ConfigBean> set = new HashSet<ConfigBean>();	//配置NRTSearchManager实例化配置文件
+				ConfigBean bean = new ConfigBean();
+				bean.setIndexPath(getIndexDirPath());
+				bean.setIndexName("luceneIndex");
+				set.add(bean);
+				IndexConfig.setConfig(set);
+				NRTSearchManager nrtSearchManager = NRTSearchManager.getNRTSearchManager("luceneIndex");
+				nrtSearchManager.addIndex(product, noAnalyzerFields);
 				
 				result = HandleResultUtils.getResultMap(true, "添加产品信息成功");
 			}
