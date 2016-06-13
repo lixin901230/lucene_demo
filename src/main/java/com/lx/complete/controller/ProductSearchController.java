@@ -44,7 +44,7 @@ public class ProductSearchController extends BaseController {
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	
 	@Autowired
-	private static IProductSearchService productSearchService;
+	private IProductSearchService productSearchService;
 	
 	/*
 	 * 注意：searchProducts方法中搜索使用近实时搜索管理类NRTSearchManager时，不能初始化IndexManager，因为都是使用的同一个索引目录，一个索引文件只能运行一个IndexWriter操作
