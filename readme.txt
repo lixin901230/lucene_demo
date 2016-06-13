@@ -39,3 +39,8 @@ Lucene 基本操作：
 	1）、添删改索引都不用手动去commit提交合并索引文件，	操作索引文件时由TrackingIndexWriter来取代IndexWriter，索引操作都在内存中不用手动频繁的commit（频繁的更新索引文件很耗费性能），
 	那么所有文件的更新将由ControlledRealTimeReopenThread类来定时去提交内存中的索引与硬盘中的索引文件进行合并（这样较少了硬盘索引文件的频繁操作，提高了性能）；
 	2）、在实现近实时搜索时，使用SearcherManager类来获取IndexSearcher来进行搜索
+
+未演示demo的部分：
+	1、分组统计 group by
+	2、排序查询 sort
+	3、查询分页
