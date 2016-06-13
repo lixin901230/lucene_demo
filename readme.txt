@@ -33,4 +33,9 @@ Lucene 基本操作：
 	1、创建Directory，获取索引目录
 　　	2、创建词法分析器Analyzer，创建IndexWriter对象
 　　	3、创建Document对象，创建Field对象并设置属性和值，存储数据
-　　	4、关闭IndexWriter，提交
+　　	4、提交，关闭IndexWriter
+注意：
+	在使用近实搜索索引管理类时：（关于近实时搜索的具体说明：请参考com.lx.lucene.index.nrtsearch.NRTSearchManager.java类的类说明）
+	1）、添删改索引都不用手动去commit提交合并索引文件，	操作索引文件时由TrackingIndexWriter来取代IndexWriter，索引操作都在内存中不用手动频繁的commit（频繁的更新索引文件很耗费性能），
+	那么所有文件的更新将由ControlledRealTimeReopenThread类来定时去提交内存中的索引与硬盘中的索引文件进行合并（这样较少了硬盘索引文件的频繁操作，提高了性能）；
+	2）、在实现近实时搜索时，使用SearcherManager类来获取IndexSearcher来进行搜索
