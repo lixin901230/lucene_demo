@@ -41,6 +41,6 @@ Lucene 基本操作：
 	2）、在实现近实时搜索时，使用SearcherManager类来获取IndexSearcher来进行搜索
 
 未演示demo的部分：
-	1、分组统计 group by
-	2、排序查询 sort
-	3、查询分页
+	1、排序查询 sort（在NRTSearch类中有封装，但为给出测试示例）
+	2、查询分页（在NRTSearch类中有封装，但为给出测试示例）
+	3、分组统计 group by
