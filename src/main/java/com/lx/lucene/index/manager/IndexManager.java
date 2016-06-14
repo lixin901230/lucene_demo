@@ -40,10 +40,12 @@ import org.apache.lucene.store.RAMDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.lx.lucene.index.nrtsearch.NRTSearchManager;
 import com.lx.util.CommonUtils;
 import com.lx.util.FileUtils;
 
 /**
+ * <b>本近实时搜索类废弃，关于近实时搜索请参考完整示例类{@link NRTSearchManager}</b></br><br/>
  * 索引管理<br/><br/>
  * 注：<b> 支持近实时搜索 </b>，
  * 即索引更新但未提交写入硬盘只是flush到缓冲区中，也能进行搜索，这样减少commit次数节省资源消耗，并由一定的提交策略提交缓冲区的索引写入硬盘<br/>
@@ -63,6 +65,7 @@ import com.lx.util.FileUtils;
  * 
  * @author lx
  */
+@Deprecated
 public class IndexManager {
 	
 	private Logger logger = LoggerFactory.getLogger(getClass());
