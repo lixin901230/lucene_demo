@@ -336,7 +336,7 @@
   		<properties>
   			<db.type>mysql</db.type>
 			<db.driver>com.mysql.jdbc.Driver</db.driver>
-			<db.url>jdbc:mysql://localhost:3306/weixin_demo?useUnicode=true&amp;characterEncoding=UTF-8</db.url>
+			<db.url>jdbc:mysql://localhost:3306/lucene_demo?useUnicode=true&amp;characterEncoding=UTF-8</db.url>
 			<db.userName>root</db.userName>
 			<db.pwd>admin</db.pwd>
 			<outputDirectory>${project.basedir}/src/main/webapp/WEB-INF/classes</outputDirectory>
@@ -360,7 +360,7 @@
   		<properties>
   			<db.type>mysql</db.type>
 			<db.driver>com.mysql.jdbc.Driver</db.driver>
-			<db.url>jdbc:mysql://localhost:3306/weixin_demo?useUnicode=true&amp;characterEncoding=UTF-8</db.url>
+			<db.url>jdbc:mysql://localhost:3306/lucene_demo?useUnicode=true&amp;characterEncoding=UTF-8</db.url>
 			<db.userName>root</db.userName>
 			<db.pwd>admin</db.pwd>
 			<outputDirectory>${project.basedir}/src/main/webapp/WEB-INF/classes</outputDirectory>
