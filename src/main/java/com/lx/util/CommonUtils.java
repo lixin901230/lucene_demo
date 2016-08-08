@@ -171,8 +171,7 @@ public class CommonUtils {
 	                args[0] = value;
 	                try {
                 		descriptor.getWriteMethod().invoke(obj, args);
-	                } catch (IllegalAccessException | IllegalArgumentException
-							| InvocationTargetException e) {
+	                } catch (Exception e) {
 						e.printStackTrace();
 					}
                 }
