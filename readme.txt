@@ -1,4 +1,5 @@
 注意：本lucene demo 基于lucene_5.4 版本
+http://archive.apache.org/dist/lucene/java/
 
 lucene版本与jdk版本对照：
 	Java 1.4, Unicode 3.0
